@@ -28,6 +28,14 @@ class ItemModel {
     this._data = data;
   }
 
+  rows(): number {
+    return this._data.length;
+  }
+
+  columns(): number {
+    return this._data[0].length;
+  }
+
   type: string = null;
   name: string = '';
   private _data: any;
@@ -39,6 +47,13 @@ class ItemModel {
 export
 class DataBrowserModel implements IDisposable {
   constructor() {
+  }
+
+  /**
+   * Get the open requested signal.
+   */
+  get openRequested(): ISignal<DataBrowserModel, void> {
+    return Private.openRequestedSignal.bind(this);
   }
 
   /**
@@ -150,4 +165,10 @@ namespace Private {
    */
   export
   const selectionChangedSignal = new Signal<DataBrowserModel, void>();
+
+  /**
+   * A signal emitted when a data source is requested to be opened.
+   */
+  export
+  const openRequestedSignal = new Signal<DataBrowserModel, void>();
 }

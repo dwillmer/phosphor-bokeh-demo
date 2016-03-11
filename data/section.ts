@@ -51,8 +51,11 @@ class DataSection extends Widget {
   static createNode(): HTMLElement {
     let node = document.createElement('div');
     let content = document.createElement('span');
+    let text = document.createElement('span');
     content.className = CONTENT_CLASS;
+    text.className = ITEM_TEXT_CLASS;
     node.appendChild(content);
+    node.appendChild(text);
     node.tabIndex = 1;
     return node;
   }
@@ -80,9 +83,9 @@ class DataSection extends Widget {
     this._model.refreshed.connect(this._onModelRefresh, this);
   }
 
-  get headerNode(): HTMLElement {
-    return utils.findElement(this.node, HEADER_CLASS);
-  }
+  // get headerNode(): HTMLElement {
+  //   return utils.findElement(this.node, HEADER_CLASS);
+  // }
 
   dispose(): void {
     this._model = null;
@@ -231,9 +234,9 @@ class DataSection extends Widget {
     this._softSelection = '';
     let target = event.target as HTMLElement;
 
-    let header = this.headerNode;
-    if (header.contains(target)) {
-      let children = header.getElementsByClassName(HEADER_ITEM_CLASS);
+    // let header = this.headerNode;
+    if (this.node.contains(target)) {
+      let children = this.node.getElementsByClassName(HEADER_ITEM_CLASS);
       let name = children[0] as HTMLElement;
       let modified = children[1] as HTMLElement;
 
@@ -258,7 +261,7 @@ class DataSection extends Widget {
 
     let content = this.contentNode;
     if (content.contains(target)) {
-      this._handleFileSelect(event);
+      this._handleDataSelect(event);
     }
   }
 
@@ -266,7 +269,7 @@ class DataSection extends Widget {
    * Handle the `scroll` event for the widget.
    */
   private _evtScroll(event: MouseEvent): void {
-    this.headerNode.scrollLeft = this.contentNode.scrollLeft;
+    //this.headerNode.scrollLeft = this.contentNode.scrollLeft;
   }
 
   /**
@@ -276,17 +279,6 @@ class DataSection extends Widget {
     // Bail if clicking within the edit node.
     if (event.target === this._editNode) {
       return;
-    }
-
-    // Blur the edit node if necessary.
-    if (this._editNode.parentNode) {
-      if (this._editNode !== event.target as HTMLElement) {
-        this._editNode.focus();
-        this._editNode.blur();
-        clearTimeout(this._selectTimer);
-      } else {
-        return;
-      }
     }
 
     let index = utils.hitTestNodes(this._items, event.clientX, event.clientY);
@@ -487,6 +479,7 @@ class DataSection extends Widget {
    * Start a drag event.
    */
   private _startDrag(index: number, clientX: number, clientY: number): void {
+    console.log('Start drag called');
     let selected = this._model.getSelected();
     let source = this._items[index];
     let items = this._model.sortedItems;
@@ -499,9 +492,8 @@ class DataSection extends Widget {
 
     // Create the drag image.
     var dragImage = source.cloneNode(true) as HTMLElement;
-    dragImage.removeChild(dragImage.lastChild);
+    //dragImage.removeChild(dragImage.lastChild);
     var text = utils.findElement(dragImage, ITEM_TEXT_CLASS);
-    text.textContent = '1';
 
     this._drag = new Drag({
       dragImage: dragImage,
@@ -512,13 +504,14 @@ class DataSection extends Widget {
     this._drag.mimeData.setData(utils.CONTENTS_MIME, null);
 
     // Start the drag and remove the mousemove listener.
+    console.log('Starting drag.')
     this._drag.start(clientX, clientY).then(action => {
       this._drag = null;
     });
     document.removeEventListener('mousemove', this, true);
   }
 
-  private _handleFileSelect(event: MouseEvent): void {
+  private _handleDataSelect(event: MouseEvent): void {
     let items = this._model.sortedItems;
     let nodes = this._items;
     let index = utils.hitTestNodes(this._items, event.clientX, event.clientY);

@@ -357,8 +357,9 @@ body {
   min-width: 300px;
   color: #757575;
   font-weight: 500;
+  font-family: Helvetica, Arial;
   font-size: 14px;
-  padding 4px 8px;
+  padding: 8px 8px;
 }
 
 .ph-DataSection-item:hover {
