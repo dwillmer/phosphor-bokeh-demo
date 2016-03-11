@@ -1,0 +1,53 @@
+{
+  "name": "phosphide-bokeh-demo",
+  "version": "0.0.1",
+  "description": "An example Phosphide Bokeh application.",
+  "main": "index.js",
+  "dependencies": {
+    "phosphide": "^0.5.0",
+    "phosphor-arrays": "^1.0.6",
+    "phosphor-di": "^0.9.0",
+    "phosphor-domutil": "^1.2.0",
+    "phosphor-dragdrop": "^0.9.0",
+    "phosphor-menus": "^1.0.0-rc.1",
+    "phosphor-messaging": "^1.0.6",
+    "phosphor-panel": "^1.0.0-rc.1",
+    "phosphor-properties": "^2.0.0",
+    "phosphor-commandpalette": "^0.1.0",
+    "phosphor-widget": "^1.0.0-rc.0"
+  },
+  "devDependencies": {
+    "css-loader": "^0.23.1",
+    "http-server": "^0.8.5",
+    "rimraf": "^2.4.4",
+    "style-loader": "^0.13.0",
+    "typescript": "^1.6.2",
+    "webpack": "^1.12.9"
+  },
+  "scripts": {
+    "clean": "rimraf blue/*.js && rimraf green/*.js && rimraf red/*.js && rimraf yellow/*.js && rimraf editor/*.js",
+    "build": "tsc --project data && tsc --project application && webpack --config webpack.conf.js",
+    "postinstall": "npm dedupe",
+    "serve": "http-server -c-1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dwillmer/phosphor-bokeh-demo.git"
+  },
+  "files": [
+    "lib/*.css",
+    "lib/*.d.ts",
+    "lib/*.js"
+  ],
+  "keywords": [
+    "application",
+    "ide",
+    "plugin"
+  ],
+  "author": "Dave Willmer <dave.willmer@gmail.com>",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/dwillmer/phosphor-bokeh-demo"
+  },
+  "homepage": "https://github.com/dwillmer/phosphor-bokeh-demo"
+}
