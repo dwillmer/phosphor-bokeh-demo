@@ -15,7 +15,8 @@
     "phosphor-properties": "^2.0.0",
     "phosphor-commandpalette": "^0.1.0",
     "phosphor-widget": "^1.0.0-rc.0",
-    "slickgrid": "^2.1.0-1"
+    "slickgrid": "^2.1.0-1",
+    "ag-grid": "^4.0.4"
   },
   "devDependencies": {
     "css-loader": "^0.23.1",

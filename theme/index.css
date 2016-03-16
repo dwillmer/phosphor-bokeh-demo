@@ -365,3 +365,52 @@ body {
 .ph-DataSection-item:hover {
   background: #7FDBFF;
 }
+
+
+/**
+ *
+ *
+ * ag-grid theme
+ *
+ */
+
+ .ag-fresh {
+   font-family: "Raleway", "Helvetica Neue", Helvetica, Arial, sans-serif;
+   font-size: 14px;
+   border: 1px solid #ddd;
+ }
+ .ag-fresh .ag-header {
+   font-weight: bold;
+   font-size: 13px;
+   line-height: 1em;
+   color: #4582ec;
+   border-bottom: 1px solid #ddd;
+ }
+ .ag-fresh .ag-header .ag-header-cell {
+   padding: 10px;
+ }
+ .ag-fresh .ag-row {
+   border-bottom: 1px solid #ddd;
+ }
+ .ag-fresh .ag-row:nth-child(odd)
+   border-top: 1px solid #ddd;
+   background-color: #f9f9f9;
+ }
+ .ag-fresh .ag-row:last-child {
+   border-bottom: none;
+ }
+ .ag-fresh .ag-row:hover {
+   background-color: #d9edf7;
+   border-top: 1px solid #aaa;
+   border-color: #aaa;
+ }
+ .ag-fresh .ag-row .ag-cell {
+   color: #333;
+   padding: 10px 15px;
+ }
+ .ag-fresh .ag-row .ag-cell:focus,
+ .ag-fresh .ag-row .ag-cell:hover {
+   font-weight: bold;
+   background-color: #d0edf3 ;
+   color:#000;
+ }

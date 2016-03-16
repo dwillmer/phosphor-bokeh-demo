@@ -15,44 +15,20 @@ import {
 
 import * as utils from './utils';
 
+import {
+  IDataProvider
+} from './financial';
 
-/**
- * A model for the available data.
- */
-export
-class ItemModel {
-
-  constructor(dataType: string, name: string, data: any) {
-    this.type = dataType;
-    this.name = name;
-    this._data = data;
-  }
-
-  rows(): number {
-    return this._data.length;
-  }
-
-  columns(): number {
-    return this._data[0].length;
-  }
-
-  type: string = null;
-  name: string = '';
-  private _data: any;
-}
 
 /**
  * A data browser model.
  */
 export
 class DataBrowserModel implements IDisposable {
-  constructor() {
-  }
-
   /**
    * Get the open requested signal.
    */
-  get openRequested(): ISignal<DataBrowserModel, void> {
+  get openRequested(): ISignal<DataBrowserModel, string> {
     return Private.openRequestedSignal.bind(this);
   }
 
@@ -74,7 +50,7 @@ class DataBrowserModel implements IDisposable {
     return this._items === null;
   }
 
-  get sortedItems(): ItemModel[] {
+  get sortedItems(): IDataProvider[] {
     return this._items;
   }
 
@@ -83,7 +59,7 @@ class DataBrowserModel implements IDisposable {
     this.refreshed.emit(void 0);
   }
 
-  addItems(items: ItemModel[]) {
+  addItems(items: IDataProvider[]) {
     for (let i = 0; i < items.length; ++i) {
       this._items.push(items[i]);
     }
@@ -142,10 +118,11 @@ class DataBrowserModel implements IDisposable {
 
   open(name: string): Promise<any> {
     console.log('Open data item: ', name);
+    this.openRequested.emit(name);
     return Promise.resolve();
   }
 
-  private _items: ItemModel[] = [];
+  private _items: IDataProvider[] = [];
   private _selection: { [key: string]: boolean; } = Object.create(null);
 }
 
@@ -170,5 +147,5 @@ namespace Private {
    * A signal emitted when a data source is requested to be opened.
    */
   export
-  const openRequestedSignal = new Signal<DataBrowserModel, void>();
+  const openRequestedSignal = new Signal<DataBrowserModel, string>();
 }

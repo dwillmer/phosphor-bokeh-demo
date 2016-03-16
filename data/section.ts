@@ -12,7 +12,7 @@ import {
 } from 'phosphor-widget';
 
 import {
-  DataBrowserModel, ItemModel
+  DataBrowserModel
 } from './model';
 
 import * as arrays from 'phosphor-arrays';
@@ -21,6 +21,10 @@ import * as utils from './utils';
 import {
   SELECTED_CLASS
 } from './utils';
+
+import {
+  IDataProvider
+} from './financial';
 
 
 /**
@@ -60,15 +64,16 @@ class DataSection extends Widget {
     return node;
   }
 
-  static updateItemNode(node: HTMLElement, model: ItemModel) {
+  static updateItemNode(node: HTMLElement, model: IDataProvider) {
     let currNode = node.firstChild as HTMLElement;
 
-    let type: string;
-    switch (model.type) {
-    case 'local-tabular':
-      type = LOCAL_TABULAR_TYPE_CLASS;
-      break;
-    }
+    let type = LOCAL_TABULAR_TYPE_CLASS;
+    // let type: string;
+    // switch (model.type) {
+    // case 'local-tabular':
+    //   type = LOCAL_TABULAR_TYPE_CLASS;
+    //   break;
+    // }
 
     let modText = '';
     let modTitle = '';
@@ -235,27 +240,27 @@ class DataSection extends Widget {
     let target = event.target as HTMLElement;
 
     // let header = this.headerNode;
-    if (this.node.contains(target)) {
-      let children = this.node.getElementsByClassName(HEADER_ITEM_CLASS);
-      let name = children[0] as HTMLElement;
-      let modified = children[1] as HTMLElement;
-
-      if (name.contains(target)) {
-        name.classList.add(SELECTED_CLASS);
-        modified.classList.remove(SELECTED_CLASS);
-        modified.classList.remove(DESCENDING_CLASS);
-      } else if (modified.contains(target)) {
-        modified.classList.remove(DESCENDING_CLASS);
-      }
-      modified.classList.add(SELECTED_CLASS);
-      name.classList.remove(SELECTED_CLASS);
-      name.classList.remove(DESCENDING_CLASS);
-    }
+    // if (this.node.contains(target)) {
+    //   let children = this.node.getElementsByClassName(HEADER_ITEM_CLASS);
+    //   let name = children[0] as HTMLElement;
+    //   let modified = children[1] as HTMLElement;
+    //
+    //   if (name.contains(target)) {
+    //     name.classList.add(SELECTED_CLASS);
+    //     modified.classList.remove(SELECTED_CLASS);
+    //     modified.classList.remove(DESCENDING_CLASS);
+    //   } else if (modified.contains(target)) {
+    //     modified.classList.remove(DESCENDING_CLASS);
+    //   }
+    //   modified.classList.add(SELECTED_CLASS);
+    //   name.classList.remove(SELECTED_CLASS);
+    //   name.classList.remove(DESCENDING_CLASS);
+    // }
     // this.update();
     // return;
 
     // Bail if editing.
-    if (this._editNode.contains(target)) {
+    if (this._editNode && this._editNode.contains(target)) {
       return;
     }
 
@@ -368,7 +373,9 @@ class DataSection extends Widget {
     //   this._noSelectTimer = -1;
     // }, RENAME_DURATION);
 
-    this._editNode.blur();
+    if (this._editNode) {
+      this._editNode.blur();
+    }
 
     // Find a valid double click target.
     let target = event.target as HTMLElement;
@@ -483,7 +490,7 @@ class DataSection extends Widget {
     let selected = this._model.getSelected();
     let source = this._items[index];
     let items = this._model.sortedItems;
-    let item: ItemModel = null;
+    let item: IDataProvider = null;
 
     if (!source.classList.contains(SELECTED_CLASS)) {
       item = items[index];

@@ -12,7 +12,7 @@ import {
 } from 'phosphor-widget';
 
 import {
-  DataBrowserModel, ItemModel
+  DataBrowserModel
 } from './model';
 
 import {
@@ -22,6 +22,11 @@ import {
 import {
   DataBrowserWidget
 } from './widget';
+
+import {
+  TradesData, PositionsData, MarketData, PnlData,
+  IDataProvider
+} from './financial';
 
 
 export
@@ -45,20 +50,17 @@ class DataHandler {
   }
 
   run(): void {
+    var tradesFeed = new TradesData('Trades');
+    var posFeed = new PositionsData('Positions', tradesFeed);
+    var marketDataFeed = new MarketData('MarketData');
+    var pnlFeed = new PnlData('PnL', posFeed, marketDataFeed);
 
-    let equitiesTrades = new ItemModel('local-tabular', 'Equities Trades', [0,1,2,3,4]);
-    let equitiesPositions = new ItemModel('local-tabular', 'Equities Positions', [2,3,4,5]);
-    let ratesTrades = new ItemModel('local-tabular', 'Rates Trades', [0,1,2,3,4,5]);
-    let ratesPositions = new ItemModel('local-tabular', 'Rates Positions', [6,7,8,9]);
-    let ratesPnl = new ItemModel('local_tabular', 'Rates PnL', [0,1,2,3,4]);
-    let commodsTrades = new ItemModel('local-tabular', 'Commod Trades', [0,1,2,3,4]);
-    let commodsPositions = new ItemModel('local-tabular', 'Commod Positions', [0,1,2,3,4]);
+    tradesFeed.initialise();
+    //posFeed.set_target(null);
 
     let dataModel = new DataBrowserModel();
     dataModel.addItems([
-      commodsTrades, commodsPositions,
-      equitiesTrades, equitiesPositions,
-      ratesTrades, ratesPositions, ratesPnl,
+      tradesFeed, posFeed, marketDataFeed, pnlFeed
     ]);
 
     let dataBrowser = new DataBrowserWidget(dataModel);
@@ -66,11 +68,14 @@ class DataHandler {
 
     this._shell.addToLeftArea(dataBrowser, {rank: 1});
 
-    let onOpenRequested = (model: DataBrowserModel) => {
-      let widget = new DataViewerWidget(model);
+    let onOpenRequested = (sender: DataBrowserModel, value: string) => {
+      let item = sender.sortedItems[0]; // TODO : get selected item.
+      let widget = new DataViewerWidget(item);
+      widget.title.text = value;
+      widget.title.closable = true;
       this._shell.addToMainArea(widget);
-    }
-    dataModel.openRequested.connect(model => onOpenRequested(model));
+    };
+    dataModel.openRequested.connect((sender, value) => onOpenRequested(sender, value));
   }
 
   private _shell: IAppShell = null;
