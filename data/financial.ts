@@ -59,6 +59,10 @@ interface IDataProvider {
    * The name of this data provider.
    */
   name: string;
+  /**
+   * TODO : make consistent.
+   */
+  set_target(item: any): void;
 }
 
 
@@ -347,5 +351,4 @@ class PnlData extends BaseDataProvider {
 
   private _pos: any = [];
   private _mkt: any = [];
-  private _pnl: any = [];
 }

@@ -21,16 +21,52 @@ class DataViewerWidget extends Widget {
     this._model = model;
 
     this._container = document.createElement('div');
+    var sel = document.createElement('select');
+    var gridOpt = document.createElement('option');
+    gridOpt.text = 'Grid';
+    sel.add(gridOpt);
+    var chartOpt = document.createElement('option');
+    chartOpt.text = 'Chart';
+    sel.add(chartOpt);
+
+    this.node.appendChild(sel);
+    sel.addEventListener('change', () => {
+      console.log('Select changed: ', sel.selectedIndex);
+      if (sel.selectedIndex === 0) {
+        this._selectGridView();
+      } else {
+        this._selectChartView();
+      }
+    });
+
+    // Default setting is grid view.
+    this._selectGridView();
+
+    this.node.appendChild(this._container);
+  }
+
+  private _selectChartView(): void {
+    this._model.dataUpdated.disconnect(this._refreshData, this);
+    while (this._container.firstChild) {
+      this._container.removeChild(this._container.firstChild);
+    }
+    this._container.className = 'bk-root';
+
+    //this._view.destroy();
+    this._view = document.createElement('div');
+    this._view.appendChild(document.createTextNode('Bokeh chart view.'))
+    this._container.appendChild(this._view);
+
+    // this._model.set_target(null);
+  }
+
+  private _selectGridView(): void {
     this._container.className = 'ag-fresh';
-
-    this._model.dataUpdated.connect(this._refreshData, this);
-
-    this._grid = new Grid(
+    this._view = new Grid(
       this._container,
       this._buildGridOptions()
     );
-
-    this.node.appendChild(this._container);
+    this._model.dataUpdated.connect(this._refreshData, this);
   }
 
   private _buildGridOptions(): any {
@@ -50,7 +86,7 @@ class DataViewerWidget extends Widget {
     while (this._container.firstChild) {
       this._container.removeChild(this._container.firstChild);
     }
-    this._grid = new Grid( // TODO : stop destroying and replacing
+    this._view = new Grid( // TODO : stop destroying and replacing
       this._container,
       this._buildGridOptions()
     );
@@ -58,5 +94,5 @@ class DataViewerWidget extends Widget {
 
   private _model: IDataProvider = null;
   private _container: HTMLElement = null;
-  private _grid: any = null;
+  private _view: any = null;
 }
