@@ -167,6 +167,17 @@ class BaseDataProvider implements IDataProvider {
       }
   }
 
+  /**
+   * Returns the item matching the name, or `undefined`.
+   */
+  protected _find(name: string): any {
+    for (let i = 0; i < this._data.length; ++i) {
+      if (this._data[i].instrument === name) {
+        return this._data[i];
+      }
+    }
+  }
+
   name: string = null;
   protected _data: any = [];
   protected _data_source: any = null;
@@ -203,7 +214,7 @@ class TradesData extends BaseDataProvider {
       { headerName: 'Book', field: 'book' }
     ];
     this._initialiseData();
-    setInterval(() => this._generateUpdates(), 750);
+    setInterval(() => this._generateUpdates(), 2000);
   }
 
   protected _initialiseData(): void {
@@ -238,26 +249,34 @@ class TradesData extends BaseDataProvider {
 }
 
 
+/**
+ * Now stores the positions as an array of objects:
+ * [ {instrument: 'MSFT', position: 101.0}, ...]
+ * this makes life easier when interfacing with
+ * various grid libraries.
+ */
 export
 class PositionsData extends BaseDataProvider {
   constructor(name: string, trades: TradesData) {
     super(name);
     this._columnHeaders = [
-      { headerName: 'Instrument', field: 'Position' },
-      { headerName: 'Position', field: 'Position'} // ??
+      { headerName: 'Inst', field: 'instrument' },
+      { headerName: 'Pos', field: 'position'}
     ];
     trades.dataUpdated.connect(this._newTrade, this);
   }
 
   private _newTrade(sender: TradesData, value: any): void {
-    if (this._data[value.instrument] === undefined) {
-      this._data[value.instrument] = 0.0;
+    let item = this._find(value.instrument);
+    if (item === undefined) {
+      item = { instrument: value.instrument, position: 0.0 };
+      this._data.push(item);
     }
 
     if (value.direction === 'Buy') {
-      this._data[value.instrument] += value.quantity;
+      item.position += value.quantity;
     } else {
-      this._data[value.instrument] -= value.quantity;
+      item.position -= value.quantity;
     }
     this.dataUpdated.emit(this._data);
   }
@@ -268,23 +287,24 @@ class MarketData extends BaseDataProvider {
   constructor(name: string) {
     super(name);
     this._columnHeaders = [
-      { headerName: 'Instrument', field: 'instrument' },
-      { headerName: 'Mkt Data', field: 'mkt data' }
+      { headerName: 'Inst', field: 'instrument' },
+      { headerName: 'Mkt Data', field: 'data' }
     ];
-    setInterval(() => this._generateUpdates(), 500);
+    setInterval(() => this._generateUpdates(), 4500);
   }
 
   private _generateUpdates(): any {
-    var item = sample(INSTS);
+    var instrument = sample(INSTS);
     var value = (Math.random() * 10) - 5;
 
-    if (this._data[item] === undefined) {
-      this._data[item] = 0.0;
+    let item = this._find(instrument);
+    if (item === undefined) {
+      item = { instrument: instrument, data: 0.0 };
+      this._data.push(item);
     }
-    this._data[item] += value;
+    item.data += value;
     this.dataUpdated.emit(this._data);
   }
-
 }
 
 
@@ -293,7 +313,7 @@ class PnlData extends BaseDataProvider {
   constructor(name: string, positions: PositionsData, market: MarketData) {
     super(name);
     this._columnHeaders = [
-      { headerName: 'Instrument', field: 'instrument' },
+      { headerName: 'Inst', field: 'instrument' },
       { headerName: 'PnL', field: 'pnl' }
     ];
     positions.dataUpdated.connect(this._positionsUpdate, this);
@@ -312,17 +332,17 @@ class PnlData extends BaseDataProvider {
 
   private _recalculate(): void {
 
-    this._pnl = [];
-    for (var inst in this._pos) {
-      if (this._pos.hasOwnProperty(inst)) {
-        let mkt = this._mkt[inst];
-        if (mkt !== undefined) {
-          this._pnl.push( [inst, this._pos[inst] * this._mkt[inst]] );
+    this._data = [];
+    for (let pi = 0; pi < this._pos.length; ++pi) {
+      let posInst = this._pos[pi].instrument;
+      for (let mi = 0; mi < this._mkt.length; ++mi) {
+        if (posInst === this._mkt[mi].instrument) {
+          let value = this._pos[pi].position * this._mkt[mi].data;
+          this._data.push({ instrument: posInst, pnl: value });
         }
       }
     }
-    console.log('Emitting PNL', this._pnl);
-    this.dataUpdated.emit(this._pnl);
+    this.dataUpdated.emit(this._data);
   }
 
   private _pos: any = [];

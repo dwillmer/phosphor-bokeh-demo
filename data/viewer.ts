@@ -47,6 +47,13 @@ class DataViewerWidget extends Widget {
 
   private _refreshData(sender: IDataProvider, value: any) {
     console.log('viewer received data update');
+    while (this._container.firstChild) {
+      this._container.removeChild(this._container.firstChild);
+    }
+    this._grid = new Grid( // TODO : stop destroying and replacing
+      this._container,
+      this._buildGridOptions()
+    );
   }
 
   private _model: IDataProvider = null;

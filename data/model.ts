@@ -100,6 +100,14 @@ class DataBrowserModel implements IDisposable {
     return Object.keys(this._selection);
   }
 
+  getItem(name: string): IDataProvider {
+    for (let i = 0; i < this._items.length; ++i) {
+      if (this._items[i].name === name) {
+        return this._items[i];
+      }
+    }
+  }
+
   /**
    * Clear the selected items.
    */
