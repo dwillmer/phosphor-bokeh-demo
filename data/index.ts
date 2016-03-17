@@ -69,10 +69,7 @@ class DataHandler {
     this._shell.addToLeftArea(dataBrowser, {rank: 1});
 
     let onOpenRequested = (sender: DataBrowserModel, value: string) => {
-      let item = sender.getItem(value);
-      let widget = new DataViewerWidget(item);
-      widget.title.text = value;
-      widget.title.closable = true;
+      let widget = sender.newFromName(value)
       this._shell.addToMainArea(widget);
     };
     dataModel.openRequested.connect((sender, value) => onOpenRequested(sender, value));

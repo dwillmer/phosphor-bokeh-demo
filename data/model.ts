@@ -19,6 +19,10 @@ import {
   IDataProvider
 } from './financial';
 
+import {
+  DataViewerWidget
+} from './viewer';
+
 
 /**
  * A data browser model.
@@ -128,6 +132,14 @@ class DataBrowserModel implements IDisposable {
     console.log('Open data item: ', name);
     this.openRequested.emit(name);
     return Promise.resolve();
+  }
+
+  newFromName(name: string): DataViewerWidget {
+    let item = this.getItem(name);
+    let widget = new DataViewerWidget(item);
+    widget.title.text = name;
+    widget.title.closable = true;
+    return widget
   }
 
   private _items: IDataProvider[] = [];

@@ -34,6 +34,7 @@ const CONTENT_CLASS = 'ph-DataSection-content';
 const DATA_SECTION_TEXT = 'ph-DataSection-text';
 const DESCENDING_CLASS = 'ph-mod-descending';
 const DRAG_THRESHOLD = 5;
+const FACTORY_MIME = 'application/x-phosphor-widget-factory';
 const HEADER_CLASS = 'ph-DataSection-header';
 const HEADER_ITEM_CLASS = 'ph-DataSection-headerItem';
 const ITEM_CLASS = 'ph-DataSection-item';
@@ -239,26 +240,6 @@ class DataSection extends Widget {
     this._softSelection = '';
     let target = event.target as HTMLElement;
 
-    // let header = this.headerNode;
-    // if (this.node.contains(target)) {
-    //   let children = this.node.getElementsByClassName(HEADER_ITEM_CLASS);
-    //   let name = children[0] as HTMLElement;
-    //   let modified = children[1] as HTMLElement;
-    //
-    //   if (name.contains(target)) {
-    //     name.classList.add(SELECTED_CLASS);
-    //     modified.classList.remove(SELECTED_CLASS);
-    //     modified.classList.remove(DESCENDING_CLASS);
-    //   } else if (modified.contains(target)) {
-    //     modified.classList.remove(DESCENDING_CLASS);
-    //   }
-    //   modified.classList.add(SELECTED_CLASS);
-    //   name.classList.remove(SELECTED_CLASS);
-    //   name.classList.remove(DESCENDING_CLASS);
-    // }
-    // this.update();
-    // return;
-
     // Bail if editing.
     if (this._editNode && this._editNode.contains(target)) {
       return;
@@ -450,7 +431,6 @@ class DataSection extends Widget {
     event.dropAction = event.proposedAction;
 
     let target = event.target as HTMLElement;
-
     while (target && target.parentElement) {
       if (target.classList.contains(utils.DROP_TARGET_CLASS)) {
         target.classList.remove(utils.DROP_TARGET_CLASS);
@@ -486,11 +466,10 @@ class DataSection extends Widget {
    * Start a drag event.
    */
   private _startDrag(index: number, clientX: number, clientY: number): void {
-    console.log('Start drag called');
     let selected = this._model.getSelected();
     let source = this._items[index];
     let items = this._model.sortedItems;
-    let item: IDataProvider = null;
+    let item: IDataProvider = items[index];
 
     if (!source.classList.contains(SELECTED_CLASS)) {
       item = items[index];
@@ -508,10 +487,12 @@ class DataSection extends Widget {
       supportedActions: DropActions.Move,
       proposedAction: DropAction.Move
     });
-    this._drag.mimeData.setData(utils.CONTENTS_MIME, null);
+    this._drag.mimeData.setData(FACTORY_MIME, () => {
+      return this._model.newFromName(item.name);
+    });
 
     // Start the drag and remove the mousemove listener.
-    console.log('Starting drag.')
+    console.log('Starting drag.');
     this._drag.start(clientX, clientY).then(action => {
       this._drag = null;
     });
