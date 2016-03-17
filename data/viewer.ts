@@ -52,9 +52,11 @@ class DataViewerWidget extends Widget {
     }
     this._container.className = 'bk-root';
 
-    //this._view.destroy();
     this._view = document.createElement('div');
+
+    // Put Bokeh plot here...
     this._view.appendChild(document.createTextNode('Bokeh chart view.'))
+
     this._container.appendChild(this._view);
 
     // this._model.set_target(null);
@@ -70,29 +72,26 @@ class DataViewerWidget extends Widget {
   }
 
   private _buildGridOptions(): any {
-    return {
+    this._opts = {
       columnDefs: this._model.columns(),
       rowData: this._model.rows(),
       enableFilter: true,
       enableSorting: true,
+      enableColResize: true,
+      rowSelection: 'single',
       onGridReady: function(params: any) {
         params.api.sizeColumnsToFit();
       }
     };
+    return this._opts;
   }
 
   private _refreshData(sender: IDataProvider, value: any) {
-    console.log('viewer received data update');
-    while (this._container.firstChild) {
-      this._container.removeChild(this._container.firstChild);
-    }
-    this._view = new Grid( // TODO : stop destroying and replacing
-      this._container,
-      this._buildGridOptions()
-    );
+    this._opts.api.setRowData(this._model.rows());
   }
 
   private _model: IDataProvider = null;
   private _container: HTMLElement = null;
   private _view: any = null;
+  private _opts: any = null;
 }

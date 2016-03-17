@@ -218,7 +218,7 @@ class TradesData extends BaseDataProvider {
       { headerName: 'Book', field: 'book' }
     ];
     this._initialiseData();
-    setInterval(() => this._generateUpdates(), 2000);
+    setInterval(() => this._generateMultipleUpdates(), 1500);
   }
 
   protected _initialiseData(): void {
@@ -227,8 +227,8 @@ class TradesData extends BaseDataProvider {
     ];
   }
 
-  protected _generateUpdates(): any {
-    var trade: ITrade = {
+  protected _newTrade(): ITrade {
+    return {
       ident: this._newId(),
       trader: sample(this._traders),
       instrument: sample(INSTS),
@@ -237,6 +237,17 @@ class TradesData extends BaseDataProvider {
       direction: sample(this._directions),
       book: sample(this._books)
     };
+  }
+
+  protected _generateMultipleUpdates(): void {
+    let n = Math.floor(Math.random() * 3);
+    for (let i = 0; i < n; ++i) {
+      this._generateUpdates();
+    }
+  }
+
+  protected _generateUpdates(): any {
+    var trade = this._newTrade();
     this._data.push(trade);
     this.dataUpdated.emit(trade);
     return trade;
