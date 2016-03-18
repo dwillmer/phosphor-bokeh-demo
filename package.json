@@ -13,7 +13,6 @@
     "phosphor-messaging": "^1.0.6",
     "phosphor-panel": "^1.0.0-rc.1",
     "phosphor-properties": "^2.0.0",
-    "phosphor-commandpalette": "^0.1.0",
     "phosphor-widget": "^1.0.0-rc.0",
     "ag-grid-enterprise": "^4.0.6"
   },
