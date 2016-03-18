@@ -15,7 +15,7 @@
     "phosphor-properties": "^2.0.0",
     "phosphor-commandpalette": "^0.1.0",
     "phosphor-widget": "^1.0.0-rc.0",
-    "ag-grid": "^4.0.4"
+    "ag-grid-enterprise": "^4.0.6"
   },
   "devDependencies": {
     "css-loader": "^0.23.1",

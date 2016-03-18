@@ -67,18 +67,7 @@ class DataSection extends Widget {
 
   static updateItemNode(node: HTMLElement, model: IDataProvider) {
     let currNode = node.firstChild as HTMLElement;
-
     let type = LOCAL_TABULAR_TYPE_CLASS;
-    // let type: string;
-    // switch (model.type) {
-    // case 'local-tabular':
-    //   type = LOCAL_TABULAR_TYPE_CLASS;
-    //   break;
-    // }
-
-    let modText = '';
-    let modTitle = '';
-
     node.className = `${ITEM_CLASS} ${type}`;
     currNode.textContent = model.name;
   }
@@ -88,10 +77,6 @@ class DataSection extends Widget {
     this._model = model;
     this._model.refreshed.connect(this._onModelRefresh, this);
   }
-
-  // get headerNode(): HTMLElement {
-  //   return utils.findElement(this.node, HEADER_CLASS);
-  // }
 
   dispose(): void {
     this._model = null;
@@ -122,26 +107,11 @@ class DataSection extends Widget {
     case 'mousemove':
       this._evtMousemove(event as MouseEvent);
       break;
-    case 'keydown':
-      //this._evtKeyown(event as KeyboardEvent);
-      break;
     case 'click':
       this._evtClick(event as MouseEvent);
       break;
     case 'dblclick':
       this._evtDblClick(event as MouseEvent);
-      break;
-    case 'scroll':
-      this._evtScroll(event as MouseEvent);
-      break;
-    case 'p-dragenter':
-      this._evtDragEnter(event as IDragEvent);
-      break;
-    case 'p-dragleave':
-      this._evtDragLeave(event as IDragEvent);
-      break;
-    case 'p-dragover':
-      this._evtDragOver(event as IDragEvent);
       break;
     case 'p-drop':
       this._evtDrop(event as IDragEvent);
@@ -157,13 +127,8 @@ class DataSection extends Widget {
     let node = this.node;
     let content = utils.findElement(node, CONTENT_CLASS);
     node.addEventListener('mousedown', this);
-    node.addEventListener('keydown', this);
     node.addEventListener('click', this);
     node.addEventListener('dblclick', this);
-    content.addEventListener('scroll', this);
-    content.addEventListener('p-dragenter', this);
-    content.addEventListener('p-dragleave', this);
-    content.addEventListener('p-dragover', this);
     content.addEventListener('p-drop', this);
   }
 
@@ -175,13 +140,8 @@ class DataSection extends Widget {
     let node = this.node;
     let content = utils.findElement(node, CONTENT_CLASS);
     node.removeEventListener('mousedown', this);
-    node.removeEventListener('keydown', this);
     node.removeEventListener('click', this);
     node.removeEventListener('dblclick', this);
-    content.removeEventListener('scroll', this);
-    content.removeEventListener('p-dragenter', this);
-    content.removeEventListener('p-dragleave', this);
-    content.removeEventListener('p-dragover', this);
     content.removeEventListener('p-drop', this);
     document.removeEventListener('mousemove', this, true);
     document.removeEventListener('mouseup', this, true);
@@ -206,13 +166,6 @@ class DataSection extends Widget {
       content.removeChild(node);
     }
 
-    // // Add any missing item nodes.
-    // while (nodes.length < items.length) {
-    //   let node = subtype.createTextNode('empty');
-    //   nodes.push(node);
-    //   content.appendChild(node);
-    // }
-
     // Update the node states to match the model contents.
     for (let i = 0, n = items.length; i < n; ++i) {
       subtype.updateItemNode(nodes[i], items[i]);
@@ -229,8 +182,6 @@ class DataSection extends Widget {
     if (selectedNames.length) {
       this.addClass(SELECTED_CLASS);
     }
-
-    //this._prevPath = this._model.path;
   }
 
   /**
@@ -249,13 +200,6 @@ class DataSection extends Widget {
     if (content.contains(target)) {
       this._handleDataSelect(event);
     }
-  }
-
-  /**
-   * Handle the `scroll` event for the widget.
-   */
-  private _evtScroll(event: MouseEvent): void {
-    //this.headerNode.scrollLeft = this.contentNode.scrollLeft;
   }
 
   /**
@@ -350,10 +294,6 @@ class DataSection extends Widget {
     event.stopPropagation();
 
     clearTimeout(this._selectTimer);
-    // this._noSelectTimer = setTimeout(() => {
-    //   this._noSelectTimer = -1;
-    // }, RENAME_DURATION);
-
     if (this._editNode) {
       this._editNode.blur();
     }
@@ -369,50 +309,6 @@ class DataSection extends Widget {
     this._model.open(item.name).catch(error => {
       console.log('Data open error', error);
     });
-  }
-
-  /**
-   * Handle the `p-dragenter` event for the widget.
-   */
-  private _evtDragEnter(event: IDragEvent): void {
-    if (event.mimeData.hasData(utils.CONTENTS_MIME)) {
-      let index = utils.hitTestNodes(this._items, event.clientX, event.clientY);
-      if (index === -1) {
-        return;
-      }
-      let target = this._items[index];
-      if (target.classList.contains(SELECTED_CLASS)) {
-        return;
-      }
-      target.classList.add(utils.DROP_TARGET_CLASS);
-      event.preventDefault();
-      event.stopPropagation();
-    }
-  }
-
-  /**
-   * Handle the `p-dragleave` event for the widget.
-   */
-  private _evtDragLeave(event: IDragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-    let dropTarget = utils.findElement(this.node, utils.DROP_TARGET_CLASS);
-    if (dropTarget) dropTarget.classList.remove(utils.DROP_TARGET_CLASS);
-  }
-
-  /**
-   * Handle the `p-dragover` event for the widget.
-   */
-  private _evtDragOver(event: IDragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-    event.dropAction = event.proposedAction;
-    let dropTarget = utils.findElement(this.node, utils.DROP_TARGET_CLASS);
-    if (dropTarget) {
-      dropTarget.classList.remove(utils.DROP_TARGET_CLASS);
-    }
-    let index = utils.hitTestNodes(this._items, event.clientX, event.clientY);
-    this._items[index].classList.add(utils.DROP_TARGET_CLASS);
   }
 
   /**
@@ -478,7 +374,6 @@ class DataSection extends Widget {
 
     // Create the drag image.
     var dragImage = source.cloneNode(true) as HTMLElement;
-    //dragImage.removeChild(dragImage.lastChild);
     var text = utils.findElement(dragImage, ITEM_TEXT_CLASS);
 
     this._drag = new Drag({

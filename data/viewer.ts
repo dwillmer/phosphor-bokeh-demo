@@ -7,6 +7,8 @@ import {
   Grid
 } from 'ag-grid/main';
 
+import 'ag-grid-enterprise/main';
+
 import {
   IDataProvider
 } from './financial';
@@ -84,7 +86,7 @@ class DataViewerWidget extends Widget {
         }
       },
       //comparator: agGrid.defaultGroupComparator,
-      suppressAggregation: true,
+      suppressAggregation: false,
       suppressRowGroup: true,
       cellRenderer: {
         renderer: 'group',
@@ -118,6 +120,7 @@ class DataViewerWidget extends Widget {
 
   private _refreshData(sender: IDataProvider, value: any) {
     this._opts.api.setRowData(this._model.rows());
+    //this._opts.api.softRefreshView();
   }
 
   private _model: IDataProvider = null;
