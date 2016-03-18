@@ -63,7 +63,7 @@ class DataViewerWidget extends Widget {
   }
 
   private _selectGridView(): void {
-    this._container.className = 'ag-fresh';
+    this._container.className = 'ag-blue';
     this._view = new Grid(
       this._container,
       this._buildGridOptions()
@@ -78,10 +78,19 @@ class DataViewerWidget extends Widget {
       enableFilter: true,
       enableSorting: true,
       enableColResize: true,
-      rowSelection: 'single',
+      enableStatusBar: true,
+      enableRangeSelection: true,
       onGridReady: function(params: any) {
         params.api.sizeColumnsToFit();
-      }
+      },
+      rowGroupPanelShow: 'always',
+      groupKeys: undefined,
+      groupHideGroupColumns: true,
+      rowSelection: 'multiple',
+      rowDeselection: true,
+      groupSelectsChildren: true,
+      suppressRowClickSelection: true,
+      showToolPanel: window.innerWidth > 900
     };
     return this._opts;
   }

@@ -305,7 +305,7 @@ class MarketData extends BaseDataProvider {
       { headerName: 'Inst', field: 'instrument' },
       { headerName: 'Mkt Data', field: 'data' }
     ];
-    setInterval(() => this._generateUpdates(), 4500);
+    setInterval(() => this._generateUpdates(), 1250);
   }
 
   private _generateUpdates(): any {
