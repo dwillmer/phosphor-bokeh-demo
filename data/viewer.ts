@@ -72,13 +72,33 @@ class DataViewerWidget extends Widget {
   }
 
   private _buildGridOptions(): any {
+    var groupColumn = {
+      headerName: 'Group',
+      width: 200,
+      field: 'Name',
+      valueGetter: function(params: any) {
+        if (params.node.group) {
+          return params.node.key;
+        } else {
+          return params.data[params.colDef.field];
+        }
+      },
+      //comparator: agGrid.defaultGroupComparator,
+      suppressAggregation: true,
+      suppressRowGroup: true,
+      cellRenderer: {
+        renderer: 'group',
+        checkbox: true
+      }
+    };
+
     this._opts = {
       columnDefs: this._model.columns(),
       rowData: this._model.rows(),
       enableFilter: true,
       enableSorting: true,
       enableColResize: true,
-      enableStatusBar: true,
+      //enableStatusBar: true,
       enableRangeSelection: true,
       onGridReady: function(params: any) {
         params.api.sizeColumnsToFit();
@@ -86,11 +106,12 @@ class DataViewerWidget extends Widget {
       rowGroupPanelShow: 'always',
       groupKeys: undefined,
       groupHideGroupColumns: true,
+      groupColumnDef: groupColumn,
       rowSelection: 'multiple',
       rowDeselection: true,
       groupSelectsChildren: true,
       suppressRowClickSelection: true,
-      showToolPanel: window.innerWidth > 900
+      //showToolPanel: window.innerWidth > 900
     };
     return this._opts;
   }

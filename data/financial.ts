@@ -10,6 +10,11 @@ declare var Bokeh:any;
 const INSTS = ['MSFT', 'AAPL', 'IBM', 'BHP', 'JPM', 'BAML'];
 
 /**
+ * Number of decimal places to use.
+ */
+const DP = 2;
+
+/**
  * Pick a random element of an array of strings.
  */
 export
@@ -218,7 +223,7 @@ class TradesData extends BaseDataProvider {
       { headerName: 'Book', field: 'book' }
     ];
     this._initialiseData();
-    setInterval(() => this._generateMultipleUpdates(), 1500);
+    setInterval(() => this._generateMultipleUpdates(), 3000);
   }
 
   protected _initialiseData(): void {
@@ -293,6 +298,7 @@ class PositionsData extends BaseDataProvider {
     } else {
       item.position -= value.quantity;
     }
+    item.position = parseFloat(item.position.toFixed(DP));
     this.dataUpdated.emit(this._data);
   }
 }
@@ -318,6 +324,7 @@ class MarketData extends BaseDataProvider {
       this._data.push(item);
     }
     item.data += value;
+    item.data = parseFloat(item.data.toFixed(DP));
     this.dataUpdated.emit(this._data);
   }
 }
@@ -353,6 +360,7 @@ class PnlData extends BaseDataProvider {
       for (let mi = 0; mi < this._mkt.length; ++mi) {
         if (posInst === this._mkt[mi].instrument) {
           let value = this._pos[pi].position * this._mkt[mi].data;
+          value = parseFloat(value.toFixed(DP));
           this._data.push({ instrument: posInst, pnl: value });
         }
       }
