@@ -1,6 +1,6 @@
 
 import {
-  Widget
+  Widget, ResizeMessage
 } from 'phosphor-widget';
 
 import {
@@ -47,12 +47,23 @@ class DataViewerWidget extends Widget {
     this.node.appendChild(this._container);
   }
 
+  onResize(msg: ResizeMessage): void {
+    super.onResize(msg);
+    console.log('Setting view height to: ', msg.height);
+    if (this._view) {
+      let sel = this.node.children[0].getBoundingClientRect();
+      this._container.style.height = (msg.height-sel.height)-5 + 'px';
+      this._opts.api.sizeColumnsToFit();
+    }
+  }
+
   private _selectChartView(): void {
     this._model.dataUpdated.disconnect(this._refreshData, this);
     while (this._container.firstChild) {
       this._container.removeChild(this._container.firstChild);
     }
-    this._container.className = 'bk-root';
+    this._container.classList.remove('ag-blue');
+    this._container.classList.add('bk-root');
 
     this._view = document.createElement('div');
 
@@ -65,7 +76,11 @@ class DataViewerWidget extends Widget {
   }
 
   private _selectGridView(): void {
-    this._container.className = 'ag-blue';
+    while (this._container.firstChild) {
+      this._container.removeChild(this._container.firstChild);
+    }
+    this._container.classList.remove('bk-root');
+    this._container.classList.add('ag-blue');
     this._view = new Grid(
       this._container,
       this._buildGridOptions()
@@ -120,7 +135,6 @@ class DataViewerWidget extends Widget {
 
   private _refreshData(sender: IDataProvider, value: any) {
     this._opts.api.setRowData(this._model.rows());
-    //this._opts.api.softRefreshView();
   }
 
   private _model: IDataProvider = null;

@@ -40,6 +40,7 @@ const HEADER_ITEM_CLASS = 'ph-DataSection-headerItem';
 const ITEM_CLASS = 'ph-DataSection-item';
 const ITEM_TEXT_CLASS = 'ph-DataSection-itemText';
 const LOCAL_TABULAR_TYPE_CLASS = 'ph-DataSection-localTabular';
+const MAIN_CLASS = 'ph-DataSection';
 const MULTI_SELECTED_CLASS = 'ph-DataSection-multiSelected';
 
 
@@ -76,6 +77,7 @@ class DataSection extends Widget {
     super();
     this._model = model;
     this._model.refreshed.connect(this._onModelRefresh, this);
+    this.node.classList.add(MAIN_CLASS);
   }
 
   dispose(): void {
