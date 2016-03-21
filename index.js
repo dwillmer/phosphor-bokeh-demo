@@ -7,21 +7,45 @@
 |----------------------------------------------------------------------------*/
 'use strict';
 
-var phosphide = require('phosphide');
-var di = require('phosphor-di');
+/**
+ * Application imports.
+ */
+var phosphide = require('phosphide/lib/core/application');
+var commands = require('phosphide/lib/extensions/commandpalette');
+var data = require('data/index');
 
 
-function main() {
-  phosphide.loadPlugins(new di.Container(), [
-    require('phosphide/lib/appshell/plugin'),
-    require('phosphide/lib/commandregistry/plugin'),
-    require('phosphide/lib/commandpalette/plugin'),
-    require('phosphide/lib/shortcutmanager/plugin'),
-    require('application'),
-    require('data'),
-  ]).then(function() {
-    console.log('loading finished');
+/**
+ * Create the application.
+ */
+var app = new phosphide.Application({
+  extensions: [
+    commands.commandPaletteExtension,
+    data.dataExtension
+  ]
+});
+
+
+/**
+ * Post-creation setup.
+ */
+window.onload = () => {
+
+  app.run().then(() => {
+
+    app.shortcuts.add([
+      {
+        command: 'command-palette:toggle',
+        sequence: ['Accel Shift P'],
+        selector: '*'
+      },
+      {
+        command: 'command-palette:hide',
+        sequence: ['Escape'],
+        selector: '[data-left-area="command-palette"]'
+      }
+    ]);
+
   });
-}
 
-window.onload = main;
+ }

@@ -1,11 +1,7 @@
 
 import {
-  IAppShell
-} from 'phosphide';
-
-import {
-  Container
-} from 'phosphor-di';
+  Application
+} from 'phosphide/lib/core/application';
 
 import {
   Widget
@@ -30,50 +26,105 @@ import {
 
 
 export
-function resolve(container: Container): Promise<void> {
-  return container.resolve(DataHandler).then(handler => {
-    handler.run();
-  });
-}
+const dataExtension = {
+  id: 'demo.data',
+  activate: activateData
+};
 
 
-class DataHandler {
+function activateData(app: Application): Promise<void> {
+  var tradesFeed = new TradesData('Trades');
+  var posFeed = new PositionsData('Positions', tradesFeed);
+  var marketDataFeed = new MarketData('MarketData');
+  var pnlFeed = new PnlData('PnL', posFeed, marketDataFeed);
 
-  static requires = [IAppShell];
+  tradesFeed.initialise();
 
-  static create(shell: IAppShell): DataHandler {
-    return new DataHandler(shell);
+  let dataModel = new DataBrowserModel();
+  dataModel.addItems([
+    tradesFeed, posFeed, marketDataFeed, pnlFeed
+  ]);
+
+  let dataBrowser = new DataBrowserWidget(dataModel);
+  dataBrowser.id = 'DataBrowser';
+  dataBrowser.title.text = 'Data';
+  dataBrowser.addClass('ph-DataPalette');
+
+  let onOpenRequested = (sender: DataBrowserModel, value: string) => {
+    let widget = sender.newFromName(value)
+    app.shell.addToMainArea(widget);
+  };
+  dataModel.openRequested.connect((sender, value) => onOpenRequested(sender, value));
+
+  let handler = (name: string) => {
+    return () => {
+      var item = dataModel.newFromName(name);
+      app.shell.addToMainArea(item);
+    }
   }
 
-  constructor(shell: IAppShell) {
-    this._shell = shell;
-  }
+  let commandItems = [
+    { id: 'show:trades', handler: handler('Trades') },
+    { id: 'show:positions', handler: handler('Positions') },
+    { id: 'show:pnl', handler: handler('PnL') },
+    { id: 'show:market_data', handler: handler('Market Data') }
+  ];
 
-  run(): void {
-    var tradesFeed = new TradesData('Trades');
-    var posFeed = new PositionsData('Positions', tradesFeed);
-    var marketDataFeed = new MarketData('MarketData');
-    var pnlFeed = new PnlData('PnL', posFeed, marketDataFeed);
+  let paletteItems = [
+    {
+      command: 'show:trades',
+      text: 'New Trades View',
+      caption: 'New dock panel with a trades view',
+      category: 'Data'
+    },
+    {
+      command: 'show:positions',
+      text: 'New Positions View',
+      caption: 'New dock panel with a positions view',
+      category: 'Data'
+    },
+    {
+      command: 'show:pnl',
+      text: 'New PnL View',
+      caption: 'New dock panel with a PnL view',
+      category: 'Data'
+    },
+    {
+      command: 'show:market_data',
+      text: 'New Market Data View',
+      caption: 'New dock panel with a Market Data view',
+      category: 'Data'
+    }
+  ];
 
-    tradesFeed.initialise();
-    //posFeed.set_target(null);
+  let shortcutItems = [
+    {
+      sequence: ['Ctrl Shift T'],
+      selector: '*',
+      command: 'show:trades'
+    },
+    {
+      sequence: ['Ctrl Shift P'],
+      selector: '*',
+      command: 'show:positions',
+    },
+    {
+      sequence: ['Ctrl Shift P', 'L'],
+      selector: '*',
+      command: 'show:pnl'
+    },
+    {
+      sequence: ['Ctrl Shift M'],
+      selector: '*',
+      command: 'show:market_data'
+    }
+  ];
 
-    let dataModel = new DataBrowserModel();
-    dataModel.addItems([
-      tradesFeed, posFeed, marketDataFeed, pnlFeed
-    ]);
+  app.commands.add(commandItems);
+  app.shortcuts.add(shortcutItems);
+  app.palette.add(paletteItems);
 
-    let dataBrowser = new DataBrowserWidget(dataModel);
-    dataBrowser.title.text = 'Data';
+  app.shell.addToLeftArea(dataBrowser, {rank: 1});
 
-    this._shell.addToLeftArea(dataBrowser, {rank: 1});
-
-    let onOpenRequested = (sender: DataBrowserModel, value: string) => {
-      let widget = sender.newFromName(value)
-      this._shell.addToMainArea(widget);
-    };
-    dataModel.openRequested.connect((sender, value) => onOpenRequested(sender, value));
-  }
-
-  private _shell: IAppShell = null;
+  return Promise.resolve<void>();
 }

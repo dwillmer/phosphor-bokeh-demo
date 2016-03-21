@@ -12,15 +12,13 @@ body {
   overflow: hidden;
 }
 
-
-.p-AppShell.p-Widget {
+.p-ApplicationShell.p-Widget {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
 }
-
 
 .p-SideBar {
   min-width: 36px;
@@ -125,8 +123,7 @@ body {
 
 
 .blue-content {
-  background: #3498DB;
-  border: 1px solid black;
+
   min-width: 100px;
 }
 
@@ -299,8 +296,10 @@ body {
 
 
 .p-CommandPalette-header {
+  margin-left: 4px;
+  text-transform: capitalize;
   color: #757575;
-  padding: 8px 0px;
+  padding: 8px 0 8px 4px;
   font-size: 12px;
   font-weight: 600;
   background: #E1E1E1;
@@ -308,12 +307,7 @@ body {
 }
 
 
-.p-CommandPalette-headerText {
-  margin-left: 4px;
-}
-
-
-.p-CommandPalette-item {
+.p-CommandPalette-command {
   color: #757575;
   font-weight: 500;
   font-size: 13px;
@@ -321,13 +315,32 @@ body {
 }
 
 .p-CommandPalette-header.p-mod-active,
-.p-CommandPalette-item.p-mod-active {
+.p-CommandPalette-command.p-mod-active {
   background: #7FDBFF;
 }
 
 
-.p-CommandPalette-item:hover:not(.p-mod-active) {
+.p-CommandPalette-command:hover:not(.p-mod-active) {
   background: #EBEBEB;
+}
+
+
+.p-CommandPalette-headerText > mark,
+.p-CommandPalette-commandText > mark {
+  font-style: normal;
+  font-weight: bold;
+  color: #303030;
+}
+
+
+.p-CommandPalette-commandCaption {
+  color: #9E9E9E;
+  font-weight: 400;
+  font-size: 11px;
+}
+
+.p-CommandPalette-commandShortcut {
+  float: right;
 }
 
 
@@ -346,6 +359,13 @@ body {
 
 .p-CommandPalette-itemShortcut {
   float: right;
+}
+
+.ph-DataPalette {
+  background: #F5F5F5;
+  border: 1px solid #CCCCCC;
+  font-family: Helvetica, Arial, sans-serif;
+  min-width: 250px;
 }
 
 .ph-DataSection {
