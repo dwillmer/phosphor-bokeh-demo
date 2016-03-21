@@ -286,7 +286,7 @@ class TradesData extends BaseDataProvider {
   }
 
   private _newId(): string {
-    var pad = new Array(4).join('0');
+    var pad = new Array(5).join('0');
     return 'Id_' + (pad + this._data.length).slice(-pad.length);
   }
 
