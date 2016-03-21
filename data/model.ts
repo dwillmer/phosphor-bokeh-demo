@@ -137,9 +137,11 @@ class DataBrowserModel implements IDisposable {
   newFromName(name: string): DataViewerWidget {
     let item = this.getItem(name);
     let widget = new DataViewerWidget(item);
-    widget.title.text = name;
+    let uniqueName = name + ' ' + item.subscribers;
+    widget.id = uniqueName;
+    widget.title.text = uniqueName;
     widget.title.closable = true;
-    return widget
+    return widget;
   }
 
   private _items: IDataProvider[] = [];

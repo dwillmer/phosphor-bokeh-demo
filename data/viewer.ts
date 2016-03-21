@@ -49,7 +49,6 @@ class DataViewerWidget extends Widget {
 
   onResize(msg: ResizeMessage): void {
     super.onResize(msg);
-    console.log('Setting view height to: ', msg.height);
     if (this._view) {
       let sel = this.node.children[0].getBoundingClientRect();
       this._container.style.height = (msg.height-sel.height)-5 + 'px';
@@ -57,7 +56,17 @@ class DataViewerWidget extends Widget {
     }
   }
 
+  dispose() {
+    super.dispose();
+    if (this._model) {
+      this._model.unsubscribe();
+    }
+    this._model.dataUpdated.disconnect(this._refreshData, this);
+    this._model = null;
+  }
+
   private _selectChartView(): void {
+    this._model.unsubscribe();
     this._model.dataUpdated.disconnect(this._refreshData, this);
     while (this._container.firstChild) {
       this._container.removeChild(this._container.firstChild);
@@ -86,6 +95,7 @@ class DataViewerWidget extends Widget {
       this._buildGridOptions()
     );
     this._model.dataUpdated.connect(this._refreshData, this);
+    this._model.subscribe();
   }
 
   private _buildGridOptions(): any {

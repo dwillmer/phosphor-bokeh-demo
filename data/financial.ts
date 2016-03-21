@@ -68,6 +68,18 @@ interface IDataProvider {
    * TODO : make consistent.
    */
   set_target(item: any): void;
+  /**
+   * The number of views subscribing to this data.
+   */
+  subscribers: number;
+  /**
+   * Subscribe to this data provider.
+   */
+  subscribe(): void;
+  /**
+   * Unsubscribe from this data provider.
+   */
+  unsubscribe(): void;
 }
 
 
@@ -113,6 +125,20 @@ class BaseDataProvider implements IDataProvider {
   constructor(name: string) {
     this.name = name;
     this.dataUpdated.connect(this._update_target_data_source, this);
+  }
+
+  /**
+   * Subscribe to this data provider.
+   */
+  subscribe() {
+    this.subscribers += 1;
+  }
+
+  /**
+   * Unsubscribe from this data provider.
+   */
+  unsubscribe() {
+    this.subscribers -= 1;
   }
 
   /**
@@ -188,6 +214,7 @@ class BaseDataProvider implements IDataProvider {
   }
 
   name: string = null;
+  subscribers = 0;
   protected _data: any = [];
   protected _data_source: any = null;
   protected _columnHeaders: IColDef[] = [];

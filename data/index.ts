@@ -67,7 +67,7 @@ function activateData(app: Application): Promise<void> {
     { id: 'show:trades', handler: handler('Trades') },
     { id: 'show:positions', handler: handler('Positions') },
     { id: 'show:pnl', handler: handler('PnL') },
-    { id: 'show:market_data', handler: handler('Market Data') }
+    { id: 'show:market_data', handler: handler('MarketData') }
   ];
 
   let paletteItems = [
