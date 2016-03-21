@@ -138,6 +138,7 @@ class DataViewerWidget extends Widget {
       rowDeselection: true,
       groupSelectsChildren: true,
       suppressRowClickSelection: true,
+      rememberGroupStateWhenNewData: true
       //showToolPanel: window.innerWidth > 900
     };
     return this._opts;
