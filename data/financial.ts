@@ -15,6 +15,11 @@ const INSTS = ['MSFT', 'AAPL', 'IBM', 'BHP', 'JPM', 'BAML'];
 const DP = 2;
 
 /**
+ * Right align column definition.
+ */
+const RIGHT_ALIGN = { 'text-align': 'right' };
+
+/**
  * Pick a random element of an array of strings.
  */
 export
@@ -36,7 +41,19 @@ interface IColDef {
    * The attribute name of the row which holds data
    * for this column.
    */
-  field: string
+  field: string;
+  /**
+   * The aggregation function to use.
+   */
+  aggFunc?: string;
+  /**
+   * An object containing cell-style information.
+   */
+  cellStyle?: any;
+  /**
+   * A string defining 'asc' or 'desc' for ascending / descending.
+   */
+  sort?: string;
 }
 
 
@@ -241,13 +258,13 @@ class TradesData extends BaseDataProvider {
 
   initialise(): void {
     this._columnHeaders = [
-      { headerName: 'Id', field: 'ident' },
-      { headerName: 'Trader', field: 'trader' },
-      { headerName: 'Inst', field: 'instrument' },
-      { headerName: 'Qty', field: 'quantity' },
-      { headerName: 'Price', field: 'price' },
-      { headerName: 'Direction', field: 'direction' },
-      { headerName: 'Book', field: 'book' }
+      { headerName: 'Id', field: 'ident', cellStyle: RIGHT_ALIGN, sort: 'desc' },
+      { headerName: 'Trader', field: 'trader', cellStyle: RIGHT_ALIGN },
+      { headerName: 'Inst', field: 'instrument', cellStyle: RIGHT_ALIGN },
+      { headerName: 'Qty', field: 'quantity', aggFunc: 'sum', cellStyle: RIGHT_ALIGN },
+      { headerName: 'Price', field: 'price', aggFunc: 'sum', cellStyle: RIGHT_ALIGN },
+      { headerName: 'Direction', field: 'direction', cellStyle: RIGHT_ALIGN },
+      { headerName: 'Book', field: 'book', cellStyle: RIGHT_ALIGN }
     ];
     this._initialiseData();
     setInterval(() => this._generateMultipleUpdates(), 3000);
@@ -307,8 +324,8 @@ class PositionsData extends BaseDataProvider {
   constructor(name: string, trades: TradesData) {
     super(name);
     this._columnHeaders = [
-      { headerName: 'Inst', field: 'instrument' },
-      { headerName: 'Pos', field: 'position'}
+      { headerName: 'Inst', field: 'instrument', cellStyle: RIGHT_ALIGN },
+      { headerName: 'Pos', field: 'position', aggFunc: 'sum', cellStyle: RIGHT_ALIGN }
     ];
     trades.dataUpdated.connect(this._newTrade, this);
   }
@@ -335,8 +352,8 @@ class MarketData extends BaseDataProvider {
   constructor(name: string) {
     super(name);
     this._columnHeaders = [
-      { headerName: 'Inst', field: 'instrument' },
-      { headerName: 'Mkt Data', field: 'data' }
+      { headerName: 'Inst', field: 'instrument', cellStyle: RIGHT_ALIGN },
+      { headerName: 'Mkt Data', field: 'data', cellStyle: RIGHT_ALIGN }
     ];
     setInterval(() => this._generateUpdates(), 1250);
   }
@@ -362,8 +379,8 @@ class PnlData extends BaseDataProvider {
   constructor(name: string, positions: PositionsData, market: MarketData) {
     super(name);
     this._columnHeaders = [
-      { headerName: 'Inst', field: 'instrument' },
-      { headerName: 'PnL', field: 'pnl' }
+      { headerName: 'Inst', field: 'instrument', cellStyle: RIGHT_ALIGN },
+      { headerName: 'PnL', field: 'pnl', aggFunc: 'sum', cellStyle: RIGHT_ALIGN }
     ];
     positions.dataUpdated.connect(this._positionsUpdate, this);
     market.dataUpdated.connect(this._marketDataUpdate, this);

@@ -102,7 +102,7 @@ class DataViewerWidget extends Widget {
     var groupColumn = {
       headerName: 'Group',
       width: 200,
-      field: 'Name',
+      field: 'ident',
       valueGetter: function(params: any) {
         if (params.node.group) {
           return params.node.key;
@@ -113,6 +113,7 @@ class DataViewerWidget extends Widget {
       //comparator: agGrid.defaultGroupComparator,
       suppressAggregation: false,
       suppressRowGroup: true,
+      columnGroupShow: true,
       cellRenderer: {
         renderer: 'group',
         checkbox: true
