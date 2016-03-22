@@ -23,23 +23,53 @@ class DataViewerWidget extends Widget {
     this._model = model;
 
     this._container = document.createElement('div');
-    var sel = document.createElement('select');
-    var gridOpt = document.createElement('option');
-    gridOpt.text = 'Grid';
-    sel.add(gridOpt);
-    var chartOpt = document.createElement('option');
-    chartOpt.text = 'Chart';
-    sel.add(chartOpt);
+    // var sel = document.createElement('select');
+    // var gridOpt = document.createElement('option');
+    // gridOpt.text = 'Grid';
+    // sel.add(gridOpt);
+    // var chartOpt = document.createElement('option');
+    // chartOpt.text = 'Chart';
+    // sel.add(chartOpt);
 
-    this.node.appendChild(sel);
-    sel.addEventListener('change', () => {
-      console.log('Select changed: ', sel.selectedIndex);
-      if (sel.selectedIndex === 0) {
-        this._selectGridView();
-      } else {
-        this._selectChartView();
-      }
-    });
+    var toggleDiv = document.createElement('div');
+    toggleDiv.classList.add('toggle');
+
+    var gridLabel = document.createElement('label');
+    var gridOpt = document.createElement('input');
+    gridOpt.setAttribute('type', 'radio');
+    gridOpt.setAttribute('name', 'grid-options');
+    gridOpt.setAttribute('checked', 'true');
+    gridOpt.id = 'gridOpt';
+    gridLabel.appendChild(gridOpt);
+
+    var gridIcon = document.createElement('i');
+    gridIcon.className = 'fa fa-bar-chart';
+    gridLabel.appendChild(gridIcon);
+
+    var chartLabel = document.createElement('label');
+    var chartOpt = document.createElement('input');
+    chartOpt.setAttribute('type', 'radio');
+    chartOpt.setAttribute('name', 'grid-options');
+    chartOpt.id = 'chartOpt';
+    chartLabel.appendChild(chartOpt);
+
+    var chartIcon = document.createElement('i');
+    chartIcon.className = 'fa fa-line-chart';
+    chartLabel.appendChild(chartIcon);
+
+    toggleDiv.appendChild(gridLabel);
+    toggleDiv.appendChild(chartLabel);
+    this.node.appendChild(toggleDiv);
+
+    // this.node.appendChild(sel);
+    // sel.addEventListener('change', () => {
+    //   console.log('Select changed: ', sel.selectedIndex);
+    //   if (sel.selectedIndex === 0) {
+    //     this._selectGridView();
+    //   } else {
+    //     this._selectChartView();
+    //   }
+    // });
 
     // Default setting is grid view.
     this._selectGridView();
