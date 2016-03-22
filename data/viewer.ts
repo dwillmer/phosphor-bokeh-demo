@@ -21,15 +21,7 @@ class DataViewerWidget extends Widget {
   constructor(model: IDataProvider) {
     super();
     this._model = model;
-
     this._container = document.createElement('div');
-    // var sel = document.createElement('select');
-    // var gridOpt = document.createElement('option');
-    // gridOpt.text = 'Grid';
-    // sel.add(gridOpt);
-    // var chartOpt = document.createElement('option');
-    // chartOpt.text = 'Chart';
-    // sel.add(chartOpt);
 
     var toggleDiv = document.createElement('div');
     toggleDiv.classList.add('toggle');
@@ -43,7 +35,7 @@ class DataViewerWidget extends Widget {
     gridLabel.appendChild(gridOpt);
 
     var gridIcon = document.createElement('i');
-    gridIcon.className = 'fa fa-bar-chart';
+    gridIcon.className = 'fa fa-server';
     gridLabel.appendChild(gridIcon);
 
     var chartLabel = document.createElement('label');
@@ -57,8 +49,33 @@ class DataViewerWidget extends Widget {
     chartIcon.className = 'fa fa-line-chart';
     chartLabel.appendChild(chartIcon);
 
+    var barLabel = document.createElement('label');
+    var barOpt = document.createElement('input');
+    barOpt.style.color = 'rgb(91,155,213)';
+    barOpt.setAttribute('type', 'radio');
+    barOpt.setAttribute('name', 'grid-options');
+    barOpt.id = 'barOpt';
+    barLabel.appendChild(barOpt);
+
+    var barIcon = document.createElement('i');
+    barIcon.className = 'fa fa-bar-chart';
+    barLabel.appendChild(barIcon);
+
+    var pieLabel = document.createElement('label');
+    var pieOpt = document.createElement('input');
+    pieOpt.setAttribute('type', 'radio');
+    pieOpt.setAttribute('name', 'grid-options');
+    pieOpt.id = 'pieOpt';
+    pieLabel.appendChild(pieOpt);
+
+    var pieIcon = document.createElement('i');
+    pieIcon.className = 'fa fa-pie-chart';
+    pieLabel.appendChild(pieIcon);
+
     toggleDiv.appendChild(gridLabel);
     toggleDiv.appendChild(chartLabel);
+    toggleDiv.appendChild(barLabel);
+    toggleDiv.appendChild(pieLabel);
     this.node.appendChild(toggleDiv);
 
     // this.node.appendChild(sel);

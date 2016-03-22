@@ -15,9 +15,32 @@ body {
 /**
  * Toggle buttons
  */
+/*.fa {
+  color: rgb(91, 155, 213);
+}
+
+.fa-server {
+  color: rgb(91, 155, 213);
+}
+
+.fa-line-chart {
+  color: rgb(91, 155, 213);
+}
+
+.fa-bar-chart {
+  color: rgb(91, 155, 213);
+}
+
+.fa-pie-chart {
+  color: rgb(91, 155, 213);
+}*/
+
 .toggle {
   width: 100%;
-  min-height: 35px;
+  min-height: 24px;
+  max-height: 24px;
+  border: 0px;
+  padding: 0px;
 }
 
 input[type=radio], input[type=checkbox] {
@@ -26,22 +49,16 @@ input[type=radio], input[type=checkbox] {
 
 input[type=radio] + i, input[type=checkbox] + i {
 	display:inline-block;
-	margin:-2px;
-	padding: 4px 12px;
-	margin-bottom: 0;
+	margin: 0px;
+	padding: 3px;
+	margin-bottom: 4px;;
 	font-size: 14px;
 	line-height: 20px;
-	color: #333;
+	color: rgb(128,128,128);
 	text-align: center;
-	text-shadow: 0 1px 1px rgba(255,255,255,0.75);
 	vertical-align: middle;
 	cursor: pointer;
-	background-color: #f5f5f5;
-	background-image: -moz-linear-gradient(top,#fff,#e6e6e6);
-	background-image: -webkit-gradient(linear,0 0,0 100%,from(#fff),to(#e6e6e6));
-	background-image: -webkit-linear-gradient(top,#fff,#e6e6e6);
-	background-image: -o-linear-gradient(top,#fff,#e6e6e6);
-	background-image: linear-gradient(to bottom,#fff,#e6e6e6);
+	background-color: rgb(221,235,247);
 	background-repeat: repeat-x;
 	border: 1px solid #ccc;
 	border-color: #e6e6e6 #e6e6e6 #bfbfbf;
@@ -56,6 +73,7 @@ input[type=radio] + i, input[type=checkbox] + i {
 
 input[type=radio]:checked + i, input[type=checkbox]:checked + i {
 	background-image: none;
+  background-color: rgb(91,155,213);
 	outline: 0;
 }
 
