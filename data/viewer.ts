@@ -127,14 +127,13 @@ class DataViewerWidget extends Widget {
 
     // Put Bokeh plot here...
     if (!this._plot) {
-        //var source = bokeh_make_source({IBM:[3,3,3], BHP:[1,2,3], JPM:[4,3,1], MSFT:[1,1,1], AAPL:[4,2,4], t:[1,2,3]});
         var source = bokeh_make_source({IBM:[], BHP:[], JPM:[], MSFT:[], AAPL:[], t:[]});
-        this._plot = bokeh_make_plot({title: this._model.name, source: source}, this);
+        this._plot = bokeh_make_plot({title: null, source: source});
         this._model.set_target(source);
     }
     this._container.appendChild(this._plot.el);
     this._plot.el.style.display = 'block';
-    this._plot.resize_width_height(true, true);  // TODO: does not appear to work?
+    this._plot.resize_width_height(true, true);
     // this._model.set_target(null);
   }
 
