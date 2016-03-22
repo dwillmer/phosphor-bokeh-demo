@@ -15,26 +15,6 @@ body {
 /**
  * Toggle buttons
  */
-/*.fa {
-  color: rgb(91, 155, 213);
-}
-
-.fa-server {
-  color: rgb(91, 155, 213);
-}
-
-.fa-line-chart {
-  color: rgb(91, 155, 213);
-}
-
-.fa-bar-chart {
-  color: rgb(91, 155, 213);
-}
-
-.fa-pie-chart {
-  color: rgb(91, 155, 213);
-}*/
-
 .toggle {
   width: 100%;
   min-height: 24px;
@@ -73,7 +53,7 @@ input[type=radio] + i, input[type=checkbox] + i {
 
 input[type=radio]:checked + i, input[type=checkbox]:checked + i {
 	background-image: none;
-  background-color: rgb(91,155,213);
+	background-color: rgb(91,155,213);
 	outline: 0;
 }
 

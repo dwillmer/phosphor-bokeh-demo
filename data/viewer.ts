@@ -13,8 +13,8 @@ import {
   IDataProvider
 } from './financial';
 
-declare var bokeh_make_plot:any;
-declare var bokeh_make_source:any;
+var bokeh_make_plot: any;
+var bokeh_make_source: any;
 
 /**
  * A widget which hosts a data browser.
@@ -33,8 +33,9 @@ class DataViewerWidget extends Widget {
     var gridOpt = document.createElement('input');
     gridOpt.setAttribute('type', 'radio');
     gridOpt.setAttribute('name', 'grid-options');
-    gridOpt.setAttribute('checked', 'true');
+    gridOpt.setAttribute('checked', 'checked');
     gridOpt.id = 'gridOpt';
+    gridOpt.onchange = () => this._selectGridView();
     gridLabel.appendChild(gridOpt);
 
     var gridIcon = document.createElement('i');
@@ -46,6 +47,7 @@ class DataViewerWidget extends Widget {
     chartOpt.setAttribute('type', 'radio');
     chartOpt.setAttribute('name', 'grid-options');
     chartOpt.id = 'chartOpt';
+    chartOpt.onchange = () => this._selectChartView();
     chartLabel.appendChild(chartOpt);
 
     var chartIcon = document.createElement('i');
@@ -80,16 +82,6 @@ class DataViewerWidget extends Widget {
     toggleDiv.appendChild(barLabel);
     toggleDiv.appendChild(pieLabel);
     this.node.appendChild(toggleDiv);
-
-    // this.node.appendChild(sel);
-    // sel.addEventListener('change', () => {
-    //   console.log('Select changed: ', sel.selectedIndex);
-    //   if (sel.selectedIndex === 0) {
-    //     this._selectGridView();
-    //   } else {
-    //     this._selectChartView();
-    //   }
-    // });
 
     // Default setting is grid view.
     this._selectGridView();
@@ -146,7 +138,7 @@ class DataViewerWidget extends Widget {
     }
     this._container.classList.remove('bk-root');
     this._container.classList.add('ag-blue');
-    if (this._plot) { this._plot.el.style.display = 'none';}    
+    if (this._plot) { this._plot.el.style.display = 'none';}
     this._view = new Grid(
       this._container,
       this._buildGridOptions()
