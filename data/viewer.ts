@@ -13,8 +13,9 @@ import {
   IDataProvider
 } from './financial';
 
-var bokeh_make_plot: any;
-var bokeh_make_source: any;
+
+declare var bokeh_make_plot: any;
+declare var bokeh_make_source: any;
 
 /**
  * A widget which hosts a data browser.
