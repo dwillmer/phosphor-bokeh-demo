@@ -1,76 +1,53 @@
-var bokeh_make_plot = function(opts, vw) {
-    window.vw = vw;  // debug
-     
+var bokeh_make_plot = function(opts) {
+         
     _ = Bokeh.require('underscore');
     function _create_view(model) {
         view = new model.default_view({model: model});
-        base.index[model.id] = view;
+        Bokeh.index[model.id] = view;
         return view;
     }
-    function add_glyphs (plot, sources, glyphs) {
-        glyphs = _process_glyphs(glyphs, sources);
-        plot.add_renderers(glyphs);
-    }
-    function add_tools (plot, tools) {
-        tool_objs = []
-        for (var i=0; i < tools.length; i++) {
-            tool_obj = base.Collections(tools[i] + "Tool").create({plot: plot})
-            tool_objs.push(tool_obj)
-        }        
-        plot.set('tools', tool_objs);
-        plot.get('tool_manager').set('tools', tools);
-        plot.get('tool_manager')._init_tools();        
-    }
-    function _get_sources (sources, glyph_source) {
-        if (glyph_source && glyph_source.type == 'ColumnDataSource') { return glyph_source; }
-        if (_.isString(glyph_source)) { return sources[glyph_source]; }
-        return base.Collections("ColumnDataSource").create({data: glyph_source})
-    }    
-    function _process_glyphs (glyphs, sources) {
-        renderers = []
-
-        for (var i=0; i<glyphs.length; i++) {
-            glyph = glyphs[i];
-            glyph_type = glyph.type;
-            source = _get_sources(sources, glyph.source);
-
-            glyph_args = _.omit(glyph, 'source', 'selection', 'inspection', 'nonselection');
-            glyph_obj = base.Collections(glyph_type).create(glyph_args);
-
-            renderer_args = {data_source: source,  glyph: glyph_obj};
-            
-            xx = ['selection', 'inspection', 'nonselection'];
-            for (var j=0; j<xx.length; j++) {
-                x = xx[j]; 
-                if (glyph[x]) {
-                    //# TODO: (bev) accept existing glyphs
-                    //# TODO: (bev) accept glyph mod functions
-                    if (glyph[x].type) {
-                         x_args = _.omit(glyph[x], 'type')
-                         x_obj = base.Collections(glyph[x].type).create(x_args)
-                    } else {
-                        x_obj = _.clone(glyph_obj)
-                        x_obj.set(glyph[x])
-                    }
-                    renderer_args[x] = x_obj
-                }
-            }
-            renderer = base.Collections("GlyphRenderer").create(renderer_args)
-            renderers.push(renderer)
+    function add_layout(plot, renderer, place) {
+        if (typeof place === 'undefined') {place = 'center';}
+        if (renderer.props().plot !== undefined) {
+            renderer.set('plot', plot);
         }
-        return renderers;
+        plot.add_renderers([renderer]);
+        if (place != 'center') {
+            plot.set(place, plot.get(place).concat([renderer]));
+        }
+    }    
+    function add_glyph(plot, glyph, source) {
+        var renderer = Bokeh.Collections('GlyphRenderer').create({data_source: source, glyph: glyph});
+        plot.add_renderers([renderer]);
+        return renderer;
     }
-    
-    // Import base so we can instantiate backbone models
-    base = Bokeh.require('base');
-    
+    function add_tools(plot, tools) {
+        for (var i=0; i<tools.length; i++) {
+            var tool = tools[i];
+            tool.set('plot', plot);            
+        }
+        plot.set("tools", plot.get("tools").concat(tools));
+        // TODO: tools not shown: need more?
+    }
+            
     // Create plot
     options = options = {};    
     options.title = opts['title'];
     options.responsive = false;  // we resize the plot
-    options.x_range = base.Collections("DataRange1d").create({});
-    options.y_range = base.Collections("DataRange1d").create({});
-    plot_model = base.Collections('Plot').create(options);
+    options.x_range = Bokeh.Collections("DataRange1d").create({});
+    options.y_range = Bokeh.Collections("DataRange1d").create({});
+    options.background_fill_color = "#eeeeff";
+    plot = Bokeh.Collections('Plot').create(options);
+    
+    // Axis and grid
+    var xaxis = Bokeh.Collections('DatetimeAxis').create({axis_line_color: null});
+    var yaxis = Bokeh.Collections('LinearAxis').create({axis_line_color: null});
+    add_layout(plot, xaxis, 'below');
+    add_layout(plot, yaxis, 'left');
+    var xgrid = Bokeh.Collections('Grid').create({ticker: xaxis.get('ticker'), dimension: 0});
+    var ygrid = Bokeh.Collections('Grid').create({ticker: yaxis.get('ticker'), dimension: 1});
+    add_layout(plot, xgrid);
+    add_layout(plot, ygrid);
     
     // Get or create source
     source = opts.source;
@@ -81,35 +58,39 @@ var bokeh_make_plot = function(opts, vw) {
     var lines = [];
     var i = -1;
     for (key in source.get('data')) {
-        if (key != 'x') {
+        if (key != 't') {
             i += 1;
-            lines.push({type:'Line', x:{field:'t'}, y:{field:key}, source: source,
-                        line_color: colors[i%6], line_width: 2});
+            var line = Bokeh.Collections('Line').create({x:{field:'t'}, y:{field:key},
+                                                         line_color: colors[i%6], line_width: 2});
+            lines.push(line);
+            add_glyph(plot, line, source);
         }
     }
-    add_glyphs(plot_model, [source], lines);   
-    
-    // Add tools --- DOES NOT WORK
-    add_tools(plot_model, ['Pan', 'BoxSelect', 'WheelZoom']);
-    
+
+    // Add tools
+    var tools = ['Pan', 'BoxSelect', 'WheelZoom'];
+    for (var i=0; i<tools.length; i++) {
+        tools[i] = Bokeh.Collections(tools[i] + 'Tool').create({plot: plot});
+    }
+    add_tools(plot, tools);
+
     // Set plot on ranges, so they are aware of renderes so they can determine bounds
     options.x_range.set('plots', []);
     options.y_range.set('plots', []);
-    options.x_range.set('plots', [plot_model]);
-    options.y_range.set('plots', [plot_model]);
+    options.x_range.set('plots', [plot]);
+    options.y_range.set('plots', [plot]);
     
     // Attach the plot canvas to DOM
-    plot = _create_view(plot_model);
+    plot_view = _create_view(plot);
     
     // For debugging
     window.options = options;
-    window.plot = plot;
+    window.plot = plot_view;
     window.source = source;    
     window.lines = lines;
-    return plot;
+    return plot_view;
 }
 
 function bokeh_make_source (data) {
-    base = Bokeh.require('base');
-    return base.Collections("ColumnDataSource").create({data: data});
+    return Bokeh.Collections("ColumnDataSource").create({data: data});
 }
