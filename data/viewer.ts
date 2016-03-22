@@ -92,10 +92,15 @@ class DataViewerWidget extends Widget {
 
   onResize(msg: ResizeMessage): void {
     super.onResize(msg);
+    // TODO : combine these into properly interfaced `view`
+    // objects, so we don't have multiple attributes.
     if (this._view) {
       let sel = this.node.children[0].getBoundingClientRect();
       this._container.style.height = (msg.height-sel.height)-5 + 'px';
       this._opts.api.sizeColumnsToFit();
+    }
+    if (this._plot) {
+      this._plot.resize_width_height(true, true);
     }
   }
 
@@ -129,7 +134,7 @@ class DataViewerWidget extends Widget {
     }
     this._container.appendChild(this._plot.el);
     this._plot.el.style.display = 'block';
-    this._plot.resize_width_height(true, true)  // TODO: does not appear to work?
+    this._plot.resize_width_height(true, true);  // TODO: does not appear to work?
     // this._model.set_target(null);
   }
 
