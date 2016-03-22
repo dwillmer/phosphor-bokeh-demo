@@ -210,9 +210,10 @@ class BaseDataProvider implements IDataProvider {
       if (this._data_source) {
           let data_source_data: any = this._data_source.get('data');
           let data_copy: any = {t: Date.now()};
-          for (var key in data) {
-             if (data_source_data.hasOwnProperty(key)) {
-                 data_copy[key] = data[key];
+          for (var el of data) {
+              var key = el.instrument;
+              if (data_source_data.hasOwnProperty(key)) {
+                 data_copy[key] = el.position;
              }
           }
           this._data_source.stream(data_copy, 100); // todo: how much history?

@@ -13,6 +13,9 @@ import {
   IDataProvider
 } from './financial';
 
+declare var bokeh_make_plot:any;
+declare var bokeh_make_source:any;
+
 /**
  * A widget which hosts a data browser.
  */
@@ -115,6 +118,7 @@ class DataViewerWidget extends Widget {
   private _selectChartView(): void {
     this._model.unsubscribe();
     this._model.dataUpdated.disconnect(this._refreshData, this);
+    // TODO: (AK) Keep grid and chart and toggle visibility, or destroy + re-create?
     while (this._container.firstChild) {
       this._container.removeChild(this._container.firstChild);
     }
@@ -124,10 +128,15 @@ class DataViewerWidget extends Widget {
     this._view = document.createElement('div');
 
     // Put Bokeh plot here...
-    this._view.appendChild(document.createTextNode('Bokeh chart view.'))
-
-    this._container.appendChild(this._view);
-
+    if (!this._plot) {
+        //var source = bokeh_make_source({IBM:[3,3,3], BHP:[1,2,3], JPM:[4,3,1], MSFT:[1,1,1], AAPL:[4,2,4], t:[1,2,3]});
+        var source = bokeh_make_source({IBM:[], BHP:[], JPM:[], MSFT:[], AAPL:[], t:[]});
+        this._plot = bokeh_make_plot({title: this._model.name, source: source}, this);
+        this._model.set_target(source);
+    }
+    this._container.appendChild(this._plot.el);
+    this._plot.el.style.display = 'block';
+    this._plot.resize_width_height(true, true)  // TODO: does not appear to work?
     // this._model.set_target(null);
   }
 
@@ -137,6 +146,7 @@ class DataViewerWidget extends Widget {
     }
     this._container.classList.remove('bk-root');
     this._container.classList.add('ag-blue');
+    if (this._plot) { this._plot.el.style.display = 'none';}    
     this._view = new Grid(
       this._container,
       this._buildGridOptions()
@@ -197,6 +207,7 @@ class DataViewerWidget extends Widget {
   }
 
   private _model: IDataProvider = null;
+  private _plot: any = null;
   private _container: HTMLElement = null;
   private _view: any = null;
   private _opts: any = null;
