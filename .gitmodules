@@ -1,0 +1,3 @@
+[submodule "bokeh"]
+	path = bokeh
+	url = git@github.com:bokeh/bokeh.git
