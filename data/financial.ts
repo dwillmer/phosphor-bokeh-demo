@@ -2,8 +2,6 @@ import {
   ISignal, Signal
 } from 'phosphor-signaling';
 
-declare var Bokeh:any;
-
 /**
  * A list of instruments to generate data for.
  */
@@ -164,54 +162,53 @@ class BaseDataProvider implements IDataProvider {
    * If null is given, uses the single plot in the page (errors if
    * there are multiple plots).
    */
-  set_target(ds: any): void {
-     if (ds === null) {
+  set_target(obj: Bokeh.Component | Bokeh.ColumnDataSource): void {
+     if (obj === null) {
          // Find the one Bokeh plot on the page
          let plot_keys = Object.keys(Bokeh.index);
          if (plot_keys.length == 1) {
-             return this.set_target(Bokeh.index[plot_keys[0]]);
+             return this.set_target(Bokeh.index[plot_keys[0]].model);
          } else {
-             throw "set_target(null) only works if there is exactly one Bokeh plot, found " + plot_keys.length;
+             throw new Error("set_target(null) only works if there is exactly one Bokeh plot, found " + plot_keys.length);
          }
-     } else if (ds.model && ds.model.type == 'Plot') {
+     } else if (obj instanceof Bokeh.Plot) {
          // Find a datasource on the plot, assuming all glyphs in the plot share one data source
-         for (var key in ds.renderers) {
-            var r = ds.renderers[key];
-            if (r && r.mget && r.mget('data_source')) {
-                return this.set_target(r.mget('data_source'));
+         for (let r of obj.renderers) {
+            if (r instanceof Bokeh.GlyphRenderer) {
+                return this.set_target(r.data_source);
             }
          }
-     } else if (ds.stream) {
-         // Looks like a datasource
+     } else if (obj instanceof Bokeh.ColumnDataSource) {
          // Reset current
          if (this._data_source) {
-             for (var key in this._data) {
+             for (let key in this._data) {
                  if (this._data_source.hasOwnProperty(key)) {
-                    this._data_source.get('data')[key] = []
+                    this._data_source.data[key] = []
                  }
              }
          }
          // Store
-         this._data_source = ds;
+         this._data_source = obj;
          // Reset new
          if (this._data_source) {
-             for (var key in this._data) {
+             for (let key in this._data) {
                  if (this._data_source.hasOwnProperty(key)) {
-                    this._data_source.get('data')[key] = []
+                    this._data_source.data[key] = []
                  }
              }
          }
      } else {
-         throw "Invalid data source given in set_target(): " + ds;
+         throw new Error("Invalid data source given in set_target(): " + obj);
      }
   }
 
   private _update_target_data_source(sender: BaseDataProvider, data: any): void {
       if (this._data_source) {
-          let data_source_data: any = this._data_source.get('data');
-          let data_copy: any = {t: Date.now()};
-          for (var el of data) {
-              var key = el.instrument;
+          // XXX: Bokeh.Data needed until TS 2.0
+          const data_source_data: Bokeh.Data = this._data_source.data;
+          const data_copy: Bokeh.Data = {t: [Date.now()]};
+          for (let el of data) {
+              const key = el.instrument;
               if (data_source_data.hasOwnProperty(key)) {
                  data_copy[key] = el.position;
              }
@@ -234,7 +231,7 @@ class BaseDataProvider implements IDataProvider {
   name: string = null;
   subscribers = 0;
   protected _data: any = [];
-  protected _data_source: any = null;
+  protected _data_source: Bokeh.ColumnDataSource = null;
   protected _columnHeaders: IColDef[] = [];
 }
 
