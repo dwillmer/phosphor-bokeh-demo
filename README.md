@@ -7,7 +7,7 @@ Build
 ```bash
 git clone --recursive https://github.com/ContinuumIO/phosphor-bokeh-demo
 cd phosphor-bokeh-demo
-( cd bokeh/bokehjs; npm install; node_modules/.bin/gulp build )
+( cd bokeh/bokehjs; npm install; npm run build )
 npm install
 npm run build
 npm run serve
