@@ -8,7 +8,8 @@
   },
   "files": [
     "../typings/es6-promise/es6-promise.d.ts",
-    "../typings/slickgrid/Slickgrid.d.ts",
+    "../typings/slickgrid/SlickGrid.d.ts",
+    "../bokeh/bokehjs/src/coffee/api/typings.d.ts",
     "index.ts"
   ]
 }
