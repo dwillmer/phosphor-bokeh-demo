@@ -13,9 +13,9 @@ import {
   IDataProvider
 } from './financial';
 
-
-declare var bokeh_make_plot: any;
-declare var bokeh_make_source: any;
+import {
+    bokeh_make_plot
+} from './bokeh';
 
 /**
  * A widget which hosts a data browser.
@@ -100,7 +100,7 @@ class DataViewerWidget extends Widget {
       this._opts.api.sizeColumnsToFit();
     }
     if (this._plot) {
-      this._plot.resize_width_height(true, true);
+      (this._plot as any).resize_width_height(true, true);
     }
   }
 
@@ -127,13 +127,15 @@ class DataViewerWidget extends Widget {
 
     // Put Bokeh plot here...
     if (!this._plot) {
-        var source = bokeh_make_source({IBM:[], BHP:[], JPM:[], MSFT:[], AAPL:[], t:[]});
-        this._plot = bokeh_make_plot({title: null, source: source});
+        const source = new Bokeh.ColumnDataSource({data: {IBM:[], BHP:[], JPM:[], MSFT:[], AAPL:[], t:[]}});
+        const plot = bokeh_make_plot(null, source);
+        this._plot = Bokeh.Plotting.show(plot, this._container);
         this._model.set_target(source);
+    } else {
+        this._container.appendChild(this._plot.el);
     }
-    this._container.appendChild(this._plot.el);
     this._plot.el.style.display = 'block';
-    this._plot.resize_width_height(true, true);
+    (this._plot as any).resize_width_height(true, true);
     // this._model.set_target(null);
   }
 
@@ -204,7 +206,7 @@ class DataViewerWidget extends Widget {
   }
 
   private _model: IDataProvider = null;
-  private _plot: any = null;
+  private _plot: Bokeh.View<Bokeh.Plot> = null;
   private _container: HTMLElement = null;
   private _view: any = null;
   private _opts: any = null;
