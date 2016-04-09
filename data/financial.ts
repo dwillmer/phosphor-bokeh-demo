@@ -1,8 +1,9 @@
+
 import {
   ISignal, Signal
 } from 'phosphor-signaling';
 
-declare var Bokeh:any;
+declare var Bokeh: any;
 
 /**
  * A list of instruments to generate data for.
@@ -27,6 +28,36 @@ function sample(items: string[]): string {
   return items[Math.floor(Math.random() * items.length)];
 }
 
+/**
+ * The interface required for a simple Trade object.
+ */
+export
+interface ITrade {
+  ident: string;
+  trader: string;
+  instrument: string;
+  quantity: number;
+  price: number;
+  direction: string;
+  book: string;
+}
+
+/**
+ * The interface that changes to the data will implement.
+ */
+export
+interface IDatum {
+  label: string;
+  value: number;
+}
+
+/**
+ * The type used in the signals between data sources.
+ *
+ * The type is either a trade, or an array of label-data pairs.
+ */
+type IDelta = ITrade | IDatum[];
+
 
 /**
  * Column Definition interface.
@@ -36,7 +67,7 @@ interface IColDef {
   /**
    * The string representation of the column.
    */
-  headerName: string,
+  headerName: string;
   /**
    * The attribute name of the row which holds data
    * for this column.
@@ -76,7 +107,7 @@ interface IDataProvider {
   /**
    * The signal emitted when the data is updated.
    */
-  dataUpdated: ISignal<IDataProvider, any>;
+  dataUpdated: ISignal<IDataProvider, IDelta>;
   /**
    * The name of this data provider.
    */
@@ -111,7 +142,7 @@ class BaseDataProvider implements IDataProvider {
   /**
    * The signal emitted when the data is updated.
    */
-  static dataChangedSignal = new Signal<IDataProvider, any>();
+  static dataChangedSignal = new Signal<IDataProvider, IDelta>();
 
   /**
    * Getter for the class static signal.
@@ -126,7 +157,7 @@ class BaseDataProvider implements IDataProvider {
    * The number of rows in the data set.
    */
   rows(): any {
-    return this._data
+    return this._data;
   }
 
   /**
@@ -168,14 +199,14 @@ class BaseDataProvider implements IDataProvider {
      if (ds === null) {
          // Find the one Bokeh plot on the page
          let plot_keys = Object.keys(Bokeh.index);
-         if (plot_keys.length == 1) {
+         if (plot_keys.length === 1) {
              return this.set_target(Bokeh.index[plot_keys[0]]);
          } else {
              throw "set_target(null) only works if there is exactly one Bokeh plot, found " + plot_keys.length;
          }
-     } else if (ds.model && ds.model.type == 'Plot') {
+     } else if (ds.model && ds.model.type === 'Plot') {
          // Find a datasource on the plot, assuming all glyphs in the plot share one data source
-         for (var key in ds.renderers) {
+         for (let key in ds.renderers) {
             var r = ds.renderers[key];
             if (r && r.mget && r.mget('data_source')) {
                 return this.set_target(r.mget('data_source'));
@@ -185,9 +216,9 @@ class BaseDataProvider implements IDataProvider {
          // Looks like a datasource
          // Reset current
          if (this._data_source) {
-             for (var key in this._data) {
+             for (let key in this._data) {
                  if (this._data_source.hasOwnProperty(key)) {
-                    this._data_source.get('data')[key] = []
+                    this._data_source.get('data')[key] = [];
                  }
              }
          }
@@ -197,7 +228,7 @@ class BaseDataProvider implements IDataProvider {
          if (this._data_source) {
              for (var key in this._data) {
                  if (this._data_source.hasOwnProperty(key)) {
-                    this._data_source.get('data')[key] = []
+                    this._data_source.get('data')[key] = [];
                  }
              }
          }
@@ -211,9 +242,9 @@ class BaseDataProvider implements IDataProvider {
           let data_source_data: any = this._data_source.get('data');
           let data_copy: any = {t: Date.now()};
           for (var el of data) {
-              var key = el.instrument;
+              var key = el.label;
               if (data_source_data.hasOwnProperty(key)) {
-                 data_copy[key] = el.position;
+                 data_copy[key] = el.value;
              }
           }
           this._data_source.stream(data_copy, 100); // todo: how much history?
@@ -225,7 +256,7 @@ class BaseDataProvider implements IDataProvider {
    */
   protected _find(name: string): any {
     for (let i = 0; i < this._data.length; ++i) {
-      if (this._data[i].instrument === name) {
+      if (this._data[i].label === name) {
         return this._data[i];
       }
     }
@@ -239,19 +270,7 @@ class BaseDataProvider implements IDataProvider {
 }
 
 
-/**
- * The interface required for a simple Trade object.
- */
-export
-interface ITrade {
-  ident: string;
-  trader: string;
-  instrument: string;
-  quantity: number;
-  price: number;
-  direction: string;
-  book: string;
-}
+
 
 
 export
@@ -304,7 +323,7 @@ class TradesData extends BaseDataProvider {
   }
 
   private _newId(): string {
-    var pad = new Array(5).join('0');
+    let pad = new Array(5).join('0');
     return 'Id_' + (pad + this._data.length).slice(-pad.length);
   }
 
@@ -325,25 +344,25 @@ class PositionsData extends BaseDataProvider {
   constructor(name: string, trades: TradesData) {
     super(name);
     this._columnHeaders = [
-      { headerName: 'Inst', field: 'instrument', cellStyle: RIGHT_ALIGN },
-      { headerName: 'Pos', field: 'position', aggFunc: 'sum', cellStyle: RIGHT_ALIGN }
+      { headerName: 'Inst', field: 'label', cellStyle: RIGHT_ALIGN },
+      { headerName: 'Pos', field: 'value', aggFunc: 'sum', cellStyle: RIGHT_ALIGN }
     ];
     trades.dataUpdated.connect(this._newTrade, this);
   }
 
-  private _newTrade(sender: TradesData, value: any): void {
-    let item = this._find(value.instrument);
+  private _newTrade(sender: TradesData, newTrade: any): void {
+    let item: IDatum = this._find(newTrade.instrument);
     if (item === undefined) {
-      item = { instrument: value.instrument, position: 0.0 };
+      item = { label: newTrade.instrument, value: 0.0 };
       this._data.push(item);
     }
 
-    if (value.direction === 'Buy') {
-      item.position += value.quantity;
+    if (newTrade.direction === 'Buy') {
+      item.value += newTrade.quantity;
     } else {
-      item.position -= value.quantity;
+      item.value -= newTrade.quantity;
     }
-    item.position = parseFloat(item.position.toFixed(DP));
+    item.value = parseFloat(item.value.toFixed(DP));
     this.dataUpdated.emit(this._data);
   }
 }
@@ -353,23 +372,23 @@ class MarketData extends BaseDataProvider {
   constructor(name: string) {
     super(name);
     this._columnHeaders = [
-      { headerName: 'Inst', field: 'instrument', cellStyle: RIGHT_ALIGN },
-      { headerName: 'Mkt Data', field: 'data', cellStyle: RIGHT_ALIGN }
+      { headerName: 'Inst', field: 'label', cellStyle: RIGHT_ALIGN },
+      { headerName: 'Mkt Data', field: 'value', cellStyle: RIGHT_ALIGN }
     ];
     setInterval(() => this._generateUpdates(), 1250);
   }
 
   private _generateUpdates(): any {
-    var instrument = sample(INSTS);
-    var value = (Math.random() * 10) - 5;
+    let instrument = sample(INSTS);
+    let val = (Math.random() * 10) - 5;
 
     let item = this._find(instrument);
     if (item === undefined) {
-      item = { instrument: instrument, data: 0.0 };
+      item = { label: instrument, value: 0.0 };
       this._data.push(item);
     }
-    item.data += value;
-    item.data = parseFloat(item.data.toFixed(DP));
+    item.value += val;
+    item.value = parseFloat(item.value.toFixed(DP));
     this.dataUpdated.emit(this._data);
   }
 }
@@ -380,8 +399,8 @@ class PnlData extends BaseDataProvider {
   constructor(name: string, positions: PositionsData, market: MarketData) {
     super(name);
     this._columnHeaders = [
-      { headerName: 'Inst', field: 'instrument', cellStyle: RIGHT_ALIGN },
-      { headerName: 'PnL', field: 'pnl', aggFunc: 'sum', cellStyle: RIGHT_ALIGN }
+      { headerName: 'Inst', field: 'label', cellStyle: RIGHT_ALIGN },
+      { headerName: 'PnL', field: 'value', aggFunc: 'sum', cellStyle: RIGHT_ALIGN }
     ];
     positions.dataUpdated.connect(this._positionsUpdate, this);
     market.dataUpdated.connect(this._marketDataUpdate, this);
@@ -401,12 +420,12 @@ class PnlData extends BaseDataProvider {
 
     this._data = [];
     for (let pi = 0; pi < this._pos.length; ++pi) {
-      let posInst = this._pos[pi].instrument;
+      let posInst = this._pos[pi].label;
       for (let mi = 0; mi < this._mkt.length; ++mi) {
-        if (posInst === this._mkt[mi].instrument) {
-          let value = this._pos[pi].position * this._mkt[mi].data;
+        if (posInst === this._mkt[mi].label) {
+          let value = this._pos[pi].value * this._mkt[mi].value;
           value = parseFloat(value.toFixed(DP));
-          this._data.push({ instrument: posInst, pnl: value });
+          this._data.push({ label: posInst, value: value });
         }
       }
     }
