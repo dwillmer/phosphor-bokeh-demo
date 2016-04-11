@@ -238,15 +238,14 @@ class BaseDataProvider implements IDataProvider {
   private _update_target_data_source(sender: BaseDataProvider, data: any): void {
       if (this._data_source) {
           // XXX: Bokeh.Data needed until TS 2.0
-          const data_source_data: Bokeh.Data = this._data_source.data;
-          const data_copy: Bokeh.Data = {t: [Date.now()]};
-          for (let el of data) {
-              const key = el.instrument;
-              if (data_source_data.hasOwnProperty(key)) {
-                 data_copy[key] = el.value;
+          const to_stream: Bokeh.Data = {t: [Date.now()]};
+          for (let data_item of data) {
+              const key = data_item.label;
+              if (this._data_source.data.hasOwnProperty(key)) {
+                 to_stream[key] = [data_item.value];
              }
           }
-          this._data_source.stream(data_copy, 100); // todo: how much history?
+          this._data_source.stream(to_stream, 100); // todo: how much history?
       }
   }
 
