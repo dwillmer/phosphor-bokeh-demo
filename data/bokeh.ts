@@ -6,15 +6,17 @@ export function bokeh_make_plot(title: string, source?: Bokeh.ColumnDataSource):
         plot_width: 400,
         plot_height: 400,
         background_fill_color: "#eeeeff",
+        x_axis_type: "datetime"
     });
 
-    // Add axis and grid
-    const xaxis = new Bokeh.DatetimeAxis({axis_line_color: null, axis_label: 'time'});
-    const yaxis = new Bokeh.LinearAxis({axis_line_color: null, axis_label: 'price'});
-    plot.add_layout(xaxis, "below");
-    plot.add_layout(yaxis, "left");
-    plot.add_layout(new Bokeh.Grid({ticker: xaxis.ticker, dimension: 0}));
-    plot.add_layout(new Bokeh.Grid({ticker: yaxis.ticker, dimension: 1}));
+    plot.xaxis.axis_line_color = null
+    plot.yaxis.axis_line_color = null
+
+    plot.xaxis.axis_label = 'time'
+    plot.yaxis.axis_label = 'price'
+
+    plot.xaxis.axis_label_text_font_size = '9pt'
+    plot.yaxis.axis_label_text_font_size = '9pt'
 
     // Get or create source
     if (!source) {
