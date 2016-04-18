@@ -24,6 +24,7 @@ import {
   IDataProvider
 } from './financial';
 
+Bokeh.set_log_level("info");
 
 export
 const dataExtension = {
