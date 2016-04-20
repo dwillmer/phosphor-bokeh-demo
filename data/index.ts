@@ -21,7 +21,7 @@ import {
 
 import {
   TradesData, PositionsData, MarketData, PnlData,
-  IDataProvider
+  IDataProvider, OrdersData
 } from './financial';
 
 Bokeh.set_log_level("info");
@@ -38,12 +38,14 @@ function activateData(app: Application): Promise<void> {
   var posFeed = new PositionsData('Positions', tradesFeed);
   var marketDataFeed = new MarketData('MarketData');
   var pnlFeed = new PnlData('PnL', posFeed, marketDataFeed);
+  var ordersFeed = new OrdersData('Orders');
 
   tradesFeed.initialise();
+  ordersFeed.initialise();
 
   let dataModel = new DataBrowserModel();
   dataModel.addItems([
-    tradesFeed, posFeed, marketDataFeed, pnlFeed
+    tradesFeed, posFeed, marketDataFeed, pnlFeed, ordersFeed
   ]);
 
   let dataBrowser = new DataBrowserWidget(dataModel);

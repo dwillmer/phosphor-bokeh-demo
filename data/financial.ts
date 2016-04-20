@@ -27,6 +27,38 @@ function sample(items: string[]): string {
   return items[Math.floor(Math.random() * items.length)];
 }
 
+
+// returns a gaussian random function with the given mean and stdev.
+function gaussian(mean: number, stdev: number) {
+    let y2: number;
+    let use_last = false;
+    return function() {
+        let y1: number;
+        if (use_last) {
+           y1 = y2;
+           use_last = false;
+        }
+        else {
+            let x1: number, x2: number, w: number;
+            do {
+                 x1 = 2.0 * Math.random() - 1.0;
+                 x2 = 2.0 * Math.random() - 1.0;
+                 w  = x1 * x1 + x2 * x2;
+            } while (w >= 1.0);
+            w = Math.sqrt((-2.0 * Math.log(w)) / w);
+            y1 = x1 * w;
+            y2 = x2 * w;
+            use_last = true;
+       }
+
+       let retval = mean + stdev * y1;
+       if (retval > 0)
+           return retval;
+       return -retval;
+   }
+}
+
+
 /**
  * The interface required for a simple Trade object.
  */
@@ -199,7 +231,7 @@ class BaseDataProvider implements IDataProvider {
          // Find the one Bokeh plot on the page
          let plot_keys = Object.keys(Bokeh.index);
 
-         if (plot_keys.length == 1) {
+         if (plot_keys.length === 1) {
              return this.set_target(Bokeh.index[plot_keys[0]].model);
          } else {
              throw new Error("set_target(null) only works if there is exactly one Bokeh plot, found " + plot_keys.length);
@@ -216,7 +248,7 @@ class BaseDataProvider implements IDataProvider {
          if (this._data_source) {
              for (let key in this._data) {
                  if (this._data_source.hasOwnProperty(key)) {
-                    this._data_source.data[key] = []
+                    this._data_source.data[key] = [];
                  }
              }
          }
@@ -226,7 +258,7 @@ class BaseDataProvider implements IDataProvider {
          if (this._data_source) {
              for (let key in this._data) {
                  if (this._data_source.hasOwnProperty(key)) {
-                    this._data_source.data[key] = []
+                    this._data_source.data[key] = [];
                  }
              }
          }
@@ -432,4 +464,113 @@ class PnlData extends BaseDataProvider {
 
   private _pos: any = [];
   private _mkt: any = [];
+}
+
+
+export
+class OrdersData extends BaseDataProvider {
+  constructor(name: string) {
+    super(name);
+    this._columnHeaders = [
+      { headerName: 'Buy', field: 'buy', cellStyle: RIGHT_ALIGN },
+      { headerName: 'Level', field: 'level', cellStyle: RIGHT_ALIGN, sort: 'desc' },
+      { headerName: 'Sell', field: 'sell' }
+    ];
+  }
+
+  initialise() {
+    setInterval(() => this._generate(), 150);
+  }
+
+  private _generate() {
+    let levelDelta = Math.floor(Math.random() * 10) - 5;
+    if (-1 <= levelDelta && levelDelta <= 1) {
+      this._changeLevelTo(this._level + levelDelta);
+    }
+  }
+
+  private _changeLevelTo(value: number) {
+    this._level = value;
+    this._resetRandNorm();
+
+    // clear any arbitrage values.
+    this._clearBuysBelow(value);
+    this._clearSellsAbove(value);
+
+    this._genNewOrders();
+    this.dataUpdated.emit(this._data);
+  }
+
+  private _clearBuysBelow(value: number) {
+    let toRemove: number[] = [];
+    for (let key in this._buys) {
+      if (this._buys.hasOwnProperty(key)) {
+        let keyVal = parseInt(key);
+        if (keyVal < this._level) {
+          toRemove.push(keyVal);
+        }
+      }
+    }
+
+    for (let i = 0; i < toRemove.length; ++i) {
+      delete this._buys[toRemove[i]];
+    }
+  }
+
+  private _clearSellsAbove(value: number) {
+    let toRemove: number[] = [];
+    for (let key in this._sells) {
+      if (this._sells.hasOwnProperty(key)) {
+        let keyVal = parseInt(key);
+        if (keyVal > this._level) {
+          toRemove.push(keyVal);
+        }
+      }
+    }
+
+    for (let i = 0; i < toRemove.length; ++i) {
+      delete this._sells[toRemove[i]];
+    }
+  }
+
+  private _genNewOrders() {
+    let numOrders = Math.floor(Math.random() * 3);
+    for (let i = 0; i <= numOrders; ++i) {
+      let level = Math.floor(this._randNorm());
+      let amount = Math.abs(Math.floor(this._randNorm())) * (Math.floor(Math.random() * 50));
+      let item: any = null;
+      if (level > this._level) {
+        item = this._buys;
+      } else {
+        item = this._sells;
+      }
+
+      if (item[level] === undefined) {
+        item[level] = 0;
+      }
+      item[level] = amount;
+    }
+
+    this._formatOutputData();
+  }
+
+  private _formatOutputData() {
+    this._data = [];
+    let lower = this._level - 5;
+    let higher = this._level + 5;
+    for (let i = lower; i <= higher; ++i) {
+      let buy: string = this._buys[i] === undefined ? '' : this._buys[i].toString();
+      let sell: string = this._sells[i] === undefined ? '' : this._sells[i].toString();
+      this._data.push({ buy: buy, level: i, sell: sell });
+    }
+  }
+
+  private _resetRandNorm() {
+    this._randNorm = gaussian(this._level, 5);
+  }
+
+  private _level = 100;
+  private _buys: any = {};
+  private _sells: any = {};
+  private _randNorm = gaussian(100, 5);
 }
